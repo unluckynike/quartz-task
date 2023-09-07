@@ -19,9 +19,11 @@ import java.util.Date;
 public class SampleJob implements Job {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
     //SQL文件路径
-    private final String SQL_FILE_PAHT = "D:\\Project\\IDEA\\task\\src\\main\\resources\\sqlfile\\test.sql";
+    private final String SQL_FILE_PAHT = "/Users/hailin/Project/IdeaCode/quartz-task/src/main/resources/sqlfile/test.sql";
+    //    private final String SQL_FILE_PAHT = "D:\\Project\\IDEA\\task\\src\\main\\resources\\sqlfile\\test.sql";
     //Python文件路径
-    private final String PY_FILE_PATH = "D:\\Project\\IDEA\\task\\src\\main\\resources\\pyfile\\test.py";
+    private final String PY_FILE_PATH = "/Users/hailin/Project/IdeaCode/quartz-task/src/main/resources/pyfile/test.py";
+    //    private final String PY_FILE_PATH = "D:\\Project\\IDEA\\task\\src\\main\\resources\\pyfile\\test.py";
     //python解释器
     private final String PY_INTERCPTER_PATH = "python";//可以换成本地解释器
 
