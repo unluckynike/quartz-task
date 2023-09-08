@@ -38,7 +38,7 @@ public class TaskDataService {
             }
             return true;
         } else {
-            //不执行
+            //不执行添加 输出错误cron日志
             logger.error("无效的Cron表达式，任务未添加到数据库: "+CronUtil.getInvalidMessage(task.getCronExpression()));
             return false;
         }
@@ -74,17 +74,25 @@ public class TaskDataService {
         }
     }
 
-    public void updateTask(Task task) {
-        try {
-            String sqlQuery = "UPDATE tasks SET taskName = ?, cronExpression = ? WHERE taskId = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, task.getTaskName());
-            preparedStatement.setString(2, task.getCronExpression());
-            preparedStatement.setInt(3, task.getTaskId());
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public boolean updateTask(Task task) {
+        //检查cron表达式是否合法
+        if (CronUtil.isValid(task.getCronExpression())) {
+            try {
+                String sqlQuery = "UPDATE tasks SET taskName = ?, cronExpression = ? WHERE taskId = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+                preparedStatement.setString(1, task.getTaskName());
+                preparedStatement.setString(2, task.getCronExpression());
+                preparedStatement.setInt(3, task.getTaskId());
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return true;
+        }else {
+            //不执行修改 输出错误cron日志
+            logger.error("无效的Cron表达式，任务未添加到数据库: "+CronUtil.getInvalidMessage(task.getCronExpression()));
+            return false;
         }
     }
 

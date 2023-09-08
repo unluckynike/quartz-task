@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/tasks")
 public class TaskController {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
+
     //操作任务
     @Autowired
     private TaskService taskService;
@@ -23,49 +24,61 @@ public class TaskController {
     @Autowired
     private TaskDataService taskDataService;
 
-    /*
-    查看任务 查到的是数据库中的任务
-    127.0.0.1:8080/tasks
+    /**
+     * 查看任务 查到的是数据库中的任务
+     * 请求地址：127.0.0.1:8080/tasks
      */
     @GetMapping()
     public void queryTask() {
         List<Task> allTasks = taskDataService.getAllTasks();
+        //吐出数据
         for (Task t : allTasks)
             System.out.println(t);
+
     }
 
-    /*
-    查看内存中的任务
-    127.0.0.1:8080/memory
-    */
+    /**
+     * 查看内存中的任务
+     * 请求地址: 127.0.0.1:8080/memory
+     *
+     * @throws SchedulerException
+     */
     @GetMapping("/memory")
     public void queryTaskInMemory() throws SchedulerException {
-       taskService.queryTaskInMemory();
+        taskService.queryTaskInMemory();
     }
 
-    /*
-    创建并开启任务 自动触发 传入任务信息
-    API请求: 127.0.0.1:8080/tasks
-    {
-    "taskName": "My Task",
-    "cronExpression": "0/10 * * * * ?"  //每10秒执行一次
-   }
+    /**
+     * 创建并开启任务 自动触发 传入任务信息
+     * 请求地址: 127.0.0.1:8080/tasks
+     * 请求参数 json数据：
+     * {
+     * "taskName": "My Task",
+     * "cronExpression": "0/10 * * * * ?"  //每10秒执行一次
+     * }
+     *
+     * @param task
+     * @throws SchedulerException
      */
     @PostMapping
     public void createTask(@RequestBody Task task) throws SchedulerException {
-        logger.info( " taskName: " + task.getTaskName());
+        logger.info(" taskName: " + task.getTaskName());
         boolean successAdd = taskDataService.addTask(task);
 
-        if (successAdd){
-            ////执行的时候 查到最后一条（也就是最新添加的）任务执行
+        if (successAdd) {
+            //执行的时候 查到最后一条（也就是最新添加的）任务执行
             taskService.createTask(taskDataService.getLastTask());
         }
 
     }
 
-    /*
-    暂停任务 传入任务id
-    127.0.0.1:8080/tasks/1/pause
+    /**
+     * 暂停任务 传入任务id
+     * 请求地址：127.0.0.1:8080/tasks/1/pause
+     * 请求参数：taskId
+     *
+     * @param taskId
+     * @throws SchedulerException
      */
     @PostMapping("/{taskId}/pause")
     public void pauseTask(@PathVariable Integer taskId) throws SchedulerException {
@@ -73,9 +86,13 @@ public class TaskController {
         taskService.pauseTask(taskId);
     }
 
-    /*
-    重启任务 传入任务id
-    127.0.0.1:8080/tasks/1/resume
+    /**
+     * 重启任务 传入任务id
+     * 请求地址：127.0.0.1:8080/tasks/1/resume
+     * 请求参数：taskId
+     *
+     * @param taskId
+     * @throws SchedulerException
      */
     @PostMapping("/{taskId}/resume")
     public void resumeTask(@PathVariable Integer taskId) throws SchedulerException {
@@ -83,9 +100,13 @@ public class TaskController {
         taskService.resumeTask(taskId);
     }
 
-    /*
-    删除任务 传入任务id
-     API请求:  http://localhost:8080/tasks/1
+    /**
+     * 删除任务 传入任务id
+     * 请求地址: http://localhost:8080/tasks/1
+     * 请求参数：taskId
+     *
+     * @param taskId
+     * @throws SchedulerException
      */
     @DeleteMapping("/{taskId}")
     public void deleteTask(@PathVariable("taskId") Integer taskId) throws SchedulerException {
@@ -94,20 +115,30 @@ public class TaskController {
         taskService.deleteTask(taskId);
     }
 
-    /*
-    修改任务 修改taskName cron表达式
-    http://localhost:8080/tasks/3?newTaskName=linlinTask&newCronExpression=0/10 * * * * ?
-    Query设置参数
+    /**
+     * 修改任务 修改taskName cron表达式
+     * 请求地址：http://localhost:8080/tasks/6
+     * 请求参数：jsons数据
+     * {
+     *     "taskName": "每月最后一天23点执行一次",
+     *     "cronExpression": "0 0 000 23 L * ?"
+     * }
+     *
+     * @throws SchedulerException
      */
     @PutMapping("/{taskId}")
     public void rescheduleTask(@PathVariable Integer taskId,
-                               @RequestParam String newTaskName,
-                               @RequestParam String newCronExpression) throws SchedulerException {
-        logger.info("修改任务 id：" + taskId + " newTaskName: " + newTaskName + " cron: " + newCronExpression);
-        Task new_task = new Task(taskId, newTaskName, newCronExpression);
-        taskDataService.updateTask(new_task);
-        taskService.rescheduleTask(taskId, newCronExpression);
+                               @RequestBody Task task) throws SchedulerException {
+        logger.debug("修改任务 id：{} newTaskName: {} cron: {}", taskId, task.getTaskName(), task.getCronExpression());
+
+        Task newTask = new Task(taskId, task.getTaskName(), task.getCronExpression());
+        //更新数据库中的任务
+        boolean successUpdate = taskDataService.updateTask(newTask);
+
+        //成功更新 重启任务
+        if (successUpdate) {
+            taskService.rescheduleTask(taskId, task.getCronExpression());
+        }
+
     }
-
-
 }

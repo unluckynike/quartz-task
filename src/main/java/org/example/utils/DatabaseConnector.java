@@ -16,41 +16,54 @@ import java.sql.SQLException;
 @Component
 public class DatabaseConnector {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
-    
-//    @Value("${spring.datasource.url}")
-    private static String JDBC_URL="jdbc:mysql://121.37.188.176:3307/dataGovernance?useSSL=false&characterEncoding=utf-8";
-//    @Value("${spring.datasource.username}")
-    private static String USERNAME="root";
-//    @Value("${spring.datasource.password}")
-    private static String PASSWORD="root";
 
-    // 建立数据库连接
-    public static Connection connect() {
+    //一直不能从配置文件获取值！！
+//    @Value("${spring.datasource.url}")
+    private String jdbcUrl="jdbc:mysql://121.37.188.176:3307/dataGovernance?useSSL=false&characterEncoding=utf-8";
+
+//    @Value("${spring.datasource.username}")
+    private String username="root";
+
+//    @Value("${spring.datasource.password}")
+    private String password="root";
+
+    /**
+     * 得到Connection建立数据库连接
+     *
+     * @return Connection
+     */
+    public Connection connect() {
         try {
-            return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+            return DriverManager.getConnection(jdbcUrl, username, password);
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            logger.error("无法建立数据库连接", e);
+            throw new RuntimeException("无法建立数据库连接", e);
         }
     }
 
-    // 关闭数据库连接
-    public static  void closeConnection(Connection connection) {
+    /**
+     * 关闭数据库连接
+     *
+     * @param connection
+     */
+    public void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("关闭数据库连接时出错", e);
             }
         }
     }
 
+    //util工具类单元测试
     public static void main(String[] args) {
-        Connection con= DatabaseConnector.connect();
-        if (con==null){
-            System.out.println("连接失败");
+        DatabaseConnector databaseConnector = new DatabaseConnector();
+        Connection connect = databaseConnector.connect();
+        if (connect==null){
+            logger.info("数据库连接失败");
         }else {
-            System.out.println("连接成功");
+            logger.info("数据库连接成功");
         }
     }
 }
