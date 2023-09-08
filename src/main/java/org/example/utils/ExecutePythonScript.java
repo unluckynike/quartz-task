@@ -13,10 +13,10 @@ public class ExecutePythonScript {
     }
 
     /**
-     * 执行.py 文件 接受一个python脚本路径作为参数，并返回脚本的输出结果。
+     * 执行.py 文件 接受一个python脚本路径作为参数
      *
      * @param scriptPath
-     * @return
+     * @return String 返回脚本的输出结果
      */
     public String executePythonScript(String scriptPath) {
         try {

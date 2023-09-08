@@ -7,7 +7,12 @@ import java.io.IOException;
 //读取sql文件内容工具类
 public class ReadSQLContext {
 
-    //读到.sql文件内容
+    /**
+     * 读到.sql文件内容
+     *
+     * @param filePath
+     * @return String 返回文件中的内容
+     */
     public static String readSQLFile(String filePath) {
         StringBuilder sqlContent = new StringBuilder();
 

@@ -26,7 +26,12 @@ public class TaskService {
     @Autowired
     private TaskDataService taskDataService;
 
-    //创建任务并调度执行（自动触发）
+    /**
+     * 创建任务并调度执行（自动触发）
+     *
+     * @param task
+     * @throws SchedulerException
+     */
     public void createTask(Task task) throws SchedulerException {
         //创建任务详情
         JobDetail jobDetail = JobBuilder
@@ -44,7 +49,12 @@ public class TaskService {
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
-    // 执行已创建的任务（手动触发）
+    /**
+     * 执行在内存中暂停的任务 （手动触发） 任务已经在内存中
+     *
+     * @param taskId
+     * @throws SchedulerException
+     */
     public void executeTask(Integer taskId) throws SchedulerException {
         // 根据任务的ID获取任务的JobKey
         JobKey jobKey = new JobKey(taskId.toString());//给的是id 因为考虑到任务名字可能重复
@@ -52,24 +62,45 @@ public class TaskService {
         scheduler.triggerJob(jobKey);
     }
 
-    //暂停任务
+    /**
+     * 暂停任务 传入taskId 暂停任务留在内存中
+     *
+     * @param taskId
+     * @throws SchedulerException
+     */
     public void pauseTask(Integer taskId) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
         scheduler.pauseTrigger(triggerKey);
     }
 
-    //重启任务
+    /**
+     * 重启任务 传入taskId 重启内存中的任务
+     *
+     * @param taskId
+     * @throws SchedulerException
+     */
     public void resumeTask(Integer taskId) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
         scheduler.resumeTrigger(triggerKey);
     }
 
-    //删除任务
+    /**
+     * 删除任务 传入taskId 删除内存中的任务
+     *
+     * @param taskId
+     * @throws SchedulerException
+     */
     public void deleteTask(Integer taskId) throws SchedulerException {
         scheduler.deleteJob(JobKey.jobKey(String.valueOf(taskId)));
     }
 
-    //修改任务的cron。
+    /**
+     * 修改任务的cron 传入taskId
+     *
+     * @param taskId
+     * @param newCronExpression
+     * @throws SchedulerException
+     */
     public void rescheduleTask(Integer taskId, String newCronExpression) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
         //构建一个新的触发器，使用新的Cron表达式
@@ -83,13 +114,16 @@ public class TaskService {
     }
 
 
-    //获取当前内存中的所有任务状态
+    /**
+     * 获取当前内存中的所有任务 得到任务状态
+     *
+     * @throws SchedulerException
+     */
     public void queryTaskInMemory() throws SchedulerException {
         // 获取所有 TriggerKey
         List<String> groupNames = scheduler.getTriggerGroupNames();
         // 创建一个 Map 来存储任务状态和数量
         Map<Trigger.TriggerState, Integer> statusCountMap = new HashMap<>();
-
 
         for (String groupName : groupNames) {
             GroupMatcher<TriggerKey> matcher = GroupMatcher.triggerGroupEquals(groupName);
@@ -105,22 +139,23 @@ public class TaskService {
                 // 将状态和数量存入 Map
                 statusCountMap.put(triggerState, statusCountMap.getOrDefault(triggerState, 0) + 1);
 
-                // NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）
+                // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）
                logger.info("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() +
                         " 的状态是 " + triggerState);
             }
         }
 
-        // 打印任务状态统计信息
+        // 吐出信息 打印任务状态统计信息
         for (Map.Entry<Trigger.TriggerState, Integer> entry : statusCountMap.entrySet()){
             logger.info("状态 " + entry.getKey() + ": " + entry.getValue() + " 个任务");
         }
 
-
+        //内存中没有任务
         if(statusCountMap.size()==0){
             logger.info("当前内存中暂无任务");
         }
-
     }
+
+
 
 }
