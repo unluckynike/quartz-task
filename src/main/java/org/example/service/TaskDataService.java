@@ -12,6 +12,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +45,7 @@ public class TaskDataService {
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
                 preparedStatement.executeUpdate();
+                //关闭预编译语句，释放相关资源。
                 preparedStatement.close();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -57,7 +62,7 @@ public class TaskDataService {
     }
 
     /**
-     * 查到最后一条（最新添加）任务 这个用于创建任务之后调用
+     * 查到最后一条（最新添加）任务 这个用于创建任务之后调用 查到数据库最后一条（新插入的）数据 放进内存里触发任务
      *
      * @return Task 返回在数据库中查到的task
      */
@@ -75,6 +80,9 @@ public class TaskDataService {
                 task.setTaskName(result.getString("taskName"));
                 task.setCronExpression(result.getString("cronExpression"));
             }
+            //关闭结果集和预编译语句。
+            result.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -83,6 +91,11 @@ public class TaskDataService {
         return task;
     }
 
+    /**
+     * 删除taks  通过taskId
+     *
+     * @param taskId
+     */
     public void deleteTask(Integer taskId) {
         connection = new DatabaseConnector().connect();
 
@@ -96,12 +109,18 @@ public class TaskDataService {
             e.printStackTrace();
         }
         new DatabaseConnector().closeConnection(connection);
-
     }
 
+    /**
+     * 更新数据库task数据
+     *
+     * @param task
+     * @return boolean
+     */
     public boolean updateTask(Task task) {
         //检查cron表达式是否合法
         if (CronUtil.isValid(task.getCronExpression())) {
+            //cron表达式合法再打开数据库连接
             connection = new DatabaseConnector().connect();
             try {
                 String sqlQuery = "UPDATE tasks SET taskName = ?, cronExpression = ? WHERE taskId = ?";
@@ -123,6 +142,11 @@ public class TaskDataService {
         }
     }
 
+    /**
+     * 查询数据库中的全部task
+     *
+     * @return List
+     */
     public List<Task> getAllTasks() {
         connection = new DatabaseConnector().connect();
         List<Task> tasks = new ArrayList<>();
@@ -131,12 +155,14 @@ public class TaskDataService {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet resultSet = preparedStatement.executeQuery();
 
+            //封装出task对象
             while (resultSet.next()) {
-                Task task = new Task(
-                        resultSet.getInt("taskId"),
-                        resultSet.getString("taskName"),
-                        resultSet.getString("cronExpression")
-                );
+                Task task = new Task();
+                task.setTaskId(resultSet.getInt("taskId"));
+                task.setTaskName(resultSet.getString("taskName"));
+                task.setCronExpression(resultSet.getString("cronExpression"));
+                task.setCreatetime(resultSet.getDate("createtime"));
+                task.setCreatetime(resultSet.getDate("updatetime"));
                 tasks.add(task);
             }
 

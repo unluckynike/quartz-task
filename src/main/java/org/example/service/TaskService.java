@@ -125,6 +125,7 @@ public class TaskService {
         // 创建一个 Map 来存储任务状态和数量
         Map<Trigger.TriggerState, Integer> statusCountMap = new HashMap<>();
 
+        logger.info("任务状态： NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）");
         for (String groupName : groupNames) {
             GroupMatcher<TriggerKey> matcher = GroupMatcher.triggerGroupEquals(groupName);
             Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(matcher);
