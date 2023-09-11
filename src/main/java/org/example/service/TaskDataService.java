@@ -162,7 +162,7 @@ public class TaskDataService {
                 task.setTaskName(resultSet.getString("taskName"));
                 task.setCronExpression(resultSet.getString("cronExpression"));
                 task.setCreatetime(resultSet.getDate("createtime"));
-                task.setCreatetime(resultSet.getDate("updatetime"));
+                task.setUpdatetime(resultSet.getDate("updatetime"));
                 tasks.add(task);
             }
 

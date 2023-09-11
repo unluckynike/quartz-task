@@ -40,39 +40,58 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-
+        <!--日志-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
 
+        <!--mysql 数据库-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.49</version>
         </dependency>
 
-
+        <!--任务调度-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
 
 
+        <!--在线接口文档-->
+        <!--springfox的核心jar包-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+
+        <!--springfox-ui的jar包(里面包含了swagger的界面静态文件)-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+
+
+        <!--redis-->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>3.3.0</version>
         </dependency>
 
-<!--        redis中不能存储对象类型，需要gson将对象转化成gson格式的字符进行存储-->
+        <!--redis中不能存储对象类型，需要gson将对象转化成gson格式的字符进行存储-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.8.6</version>
         </dependency>
 
+
+
+
     </dependencies>
-
-
 </project>

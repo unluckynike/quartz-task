@@ -1,19 +1,29 @@
 package org.example.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
+
+@ApiModel
 public class Task {
+
+    @ApiModelProperty("任务id")
     private Integer taskId;
+    @ApiModelProperty("任务名称")
     private String taskName;
+    @ApiModelProperty("任务cron表达式")
     private String cronExpression;
 
+    @ApiModelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createtime = null;
+    @ApiModelProperty("上次更新时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updatetime = null;
 
-    // getters and setters
 
     public Task() {
     }
@@ -24,6 +34,7 @@ public class Task {
         this.cronExpression = cronExpression;
     }
 
+    // getters and setters
     public Integer getTaskId() {
         return taskId;
     }

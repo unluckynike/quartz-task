@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import io.swagger.annotations.ApiOperation;
 import org.example.pojo.Task;
 import org.example.service.TaskDataService;
 import org.example.service.TaskService;
@@ -28,13 +29,15 @@ public class TaskController {
      * 查看任务 查到的是数据库中的任务
      * 请求地址：127.0.0.1:8080/tasks
      */
+    @ApiOperation(value="查看任务", notes="查到的是数据库中的任务",hidden=false)
     @GetMapping()
-    public void queryTask() {
+    public List<Task> queryTask() {
         List<Task> allTasks = taskDataService.getAllTasks();
         //吐出数据
         for (Task t : allTasks)
             System.out.println(t);
 
+        return allTasks;
     }
 
     /**
