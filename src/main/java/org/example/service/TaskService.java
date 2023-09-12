@@ -63,7 +63,7 @@ public class TaskService {
     }
 
     /**
-     * 暂停任务 传入taskId 暂停任务留在内存中
+     * 暂停任务 传入taskId 暂停任务 任务留在内存中
      *
      * @param taskId
      * @throws SchedulerException

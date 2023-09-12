@@ -14,8 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-
-
 @Component
 public class SampleJob implements Job {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
