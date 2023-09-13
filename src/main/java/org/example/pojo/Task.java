@@ -20,8 +20,12 @@ public class Task {
     private Integer taskId;
     @ApiModelProperty("任务名称")
     private String taskName;
-    @ApiModelProperty("任务表达式 cron表达式 ")
+    @ApiModelProperty("任务表达式 cron表达式 针对多次循环时间任务")
     private String cronExpression;
+
+    @ApiModelProperty("任务表达式 时间表达式 针对单次定点时间任务 ")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date timeExpression;
 
     @ApiModelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -34,11 +38,18 @@ public class Task {
     public Task() {
     }
 
-    //cron constructor
+    //cronExpression constructor
     public Task(Integer taskId, String taskName, String cronExpression) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.cronExpression = cronExpression;
+    }
+
+    //timeExpression constructor
+    public Task(Integer taskId, String taskName, Date timeExpression) {
+        this.taskId = taskId;
+        this.taskName = taskName;
+        this.timeExpression = timeExpression;
     }
 
     // getters and setters
@@ -66,6 +77,14 @@ public class Task {
         this.cronExpression = expression;
     }
 
+    public Date getTimeExpression() {
+        return timeExpression;
+    }
+
+    public void setTimeExpression(Date timeExpression) {
+        this.timeExpression = timeExpression;
+    }
+
     public Date getCreatetime() {
         return createtime;
     }
@@ -88,6 +107,7 @@ public class Task {
                 "taskId=" + taskId +
                 ", taskName='" + taskName + '\'' +
                 ", cronExpression='" + cronExpression + '\'' +
+                ", timeExpression=" + timeExpression +
                 ", createtime=" + createtime +
                 ", updatetime=" + updatetime +
                 '}';

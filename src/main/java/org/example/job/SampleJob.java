@@ -18,7 +18,7 @@ import java.util.Date;
  * @Package org.example.job
  * @Author hailin
  * @Date 2023/8/11
- * @Description : 具体任务实现类
+ * @Description : 具体任务实现类  实现了 Job接口的 execute（）方法
  */
 
 @Component

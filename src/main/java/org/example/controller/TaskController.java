@@ -39,7 +39,7 @@ public class TaskController {
      * 查看数据库任务 查到的是数据库中的任务
      * 请求地址：127.0.0.1:8080/tasks
      */
-    @ApiOperation(value="查看数据库任务", notes="查到的是存在数据库中的任务",hidden=false)
+    @ApiOperation(value = "查看数据库任务", notes = "查到的是存在数据库中的任务", hidden = false)
     @GetMapping()
     public List<Task> queryTask() {
         List<Task> allTasks = taskDataService.getAllTasks();
@@ -56,7 +56,7 @@ public class TaskController {
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value="查看内存任务", notes="查看到的是当前内存中的任务")
+    @ApiOperation(value = "查看内存任务", notes = "查看到的是当前内存中的任务")
     @GetMapping("/memory")
     public void queryTaskInMemory() throws SchedulerException {
         taskService.queryTaskInMemory();
@@ -64,7 +64,7 @@ public class TaskController {
 
     /**
      * 创建并开启任务 自动触发 传入任务信息
-     *
+     * <p>
      * 请求地址: 127.0.0.1:8080/tasks
      * 请求参数 json数据：
      * {
@@ -75,11 +75,11 @@ public class TaskController {
      * @param task
      * @throws SchedulerException
      */
-    @ApiOperation(value="创建并开启任务", notes="传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
-    @PostMapping
+    @ApiOperation(value = "创建并开启多次循环任务", notes = "传入cron任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @PostMapping("/createLoopTask")
     public void createLoopTask(@RequestBody Task task) throws SchedulerException {
-        logger.info(" taskName: " + task.getTaskName());
-        boolean successAdd = taskDataService.addTask(task);
+        logger.info("task infor: " + task.toString());
+        boolean successAdd = taskDataService.addCronTask(task);
 
         if (successAdd) {
             //执行的时候 查到最后一条（也就是最新添加的）任务执行
@@ -99,7 +99,7 @@ public class TaskController {
      * @param taskId
      * @throws SchedulerException
      */
-    @ApiOperation(value="暂停任务", notes="传入任务id 通过id暂停内存中的任务 任务留在内存中")
+    @ApiOperation(value = "暂停任务", notes = "传入任务id 通过id暂停内存中的任务 任务留在内存中")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PostMapping("/{taskId}/pause")
     public void pauseTask(@PathVariable Integer taskId) throws SchedulerException {
@@ -115,7 +115,7 @@ public class TaskController {
      * @param taskId
      * @throws SchedulerException
      */
-    @ApiOperation(value="启动任务", notes="传入任务id 通过id重新启动内存中的任务")
+    @ApiOperation(value = "启动任务", notes = "传入任务id 通过id重新启动内存中的任务")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PostMapping("/{taskId}/resume")
     public void resumeTask(@PathVariable Integer taskId) throws SchedulerException {
@@ -131,7 +131,7 @@ public class TaskController {
      * @param taskId
      * @throws SchedulerException
      */
-    @ApiOperation(value="删除任务", notes="传入任务id 通过id删除内存中的任务 任务在内存中清空 数据库中删除数据")
+    @ApiOperation(value = "删除任务", notes = "传入任务id 通过id删除内存中的任务 任务在内存中清空 数据库中删除数据")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @DeleteMapping("/{taskId}")
     public void deleteTask(@PathVariable("taskId") Integer taskId) throws SchedulerException {
@@ -145,22 +145,22 @@ public class TaskController {
      * 请求地址：http://localhost:8080/tasks/6
      * 请求参数：jsons数据
      * {
-     *     "taskName": "每月最后一天23点执行一次",
-     *     "cronExpression": "0 0 000 23 L * ?"
+     * "taskName": "每月最后一天23点执行一次",
+     * "cronExpression": "0 0 000 23 L * ?"
      * }
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value="修改任务", notes="传入任务id和taks对象， 修改该id下的taskName cron表达式 ")
+    @ApiOperation(value = "修改循环任务", notes = "传入任务id和taks对象， 修改该id下的taskName cron表达式 ")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PutMapping("/{taskId}")
-    public void rescheduleTask(@PathVariable Integer taskId,
+    public void rescheduleLoopTask(@PathVariable Integer taskId,
                                @RequestBody Task task) throws SchedulerException {
         logger.debug("修改任务 id：{} newTaskName: {} cron: {}", taskId, task.getTaskName(), task.getCronExpression());
 
         Task newTask = new Task(taskId, task.getTaskName(), task.getCronExpression());
-        //更新数据库中的任务
-        boolean successUpdate = taskDataService.updateTask(newTask);
+        //更新数据库中的cron表达式
+        boolean successUpdate = taskDataService.updateCronTask(newTask);
 
         //成功更新 重启任务
         if (successUpdate) {
@@ -170,13 +170,28 @@ public class TaskController {
 
     /******************************************************** 单次执行的任务 ****************************************************************/
 
+    /**
+     * 创建单次定点任务并开启执行
+     * @param task
+     * @throws SchedulerException
+     *  json对象
+     * {
+     *     "taskName": "十点办跑",
+     *     "timeExpression": "2023-09-19 10:30:00"
+     * }
+     */
+    @ApiOperation(value = "创建单次定点任务并开启执行", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @PostMapping("/createOnceTimeTask")
+    public void createOnceTimeTask(@RequestBody Task task) throws SchedulerException {
+        logger.info("task infor : " + task.toString());
 
+        //单次任务 加入数据库
+        boolean successAdd = taskDataService.addOnceTimeTask(task);
 
-    @ApiOperation(value="创建并开启任务", notes="传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
-    @PostMapping
-    public void createOnceTask(@RequestBody Task task) throws SchedulerException {
-        logger.info(" taskName: " + task.getTaskName());
+        if (successAdd){
+            //controller如果直接传task对象 拿不到taskId 还得需要过DB数据库
+            taskService.createOnceTimeTask(taskDataService.getLastTask());
+        }
 
-        taskService.createOnceTask(task);
     }
 }

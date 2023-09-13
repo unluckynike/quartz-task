@@ -28,10 +28,10 @@ public class TaskService {
     @Autowired
     private Scheduler scheduler;
 
-    /******************************************************** 循环执行的任务 cron ****************************************************************/
+    /******************************************************** 循环多次执行的任务 cron ****************************************************************/
 
     /**
-     * 创建任务并调度执行（自动触发）
+     * 创建循环多轮任务并调度执行（自动触发）
      *
      * @param task
      * @throws SchedulerException
@@ -45,10 +45,9 @@ public class TaskService {
         //创建触发器
         CronTrigger trigger = TriggerBuilder
                 .newTrigger()
-                .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复   ??试试 + task.getTaskName()
+                .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复   ?? 试试 + task.getTaskName()
                 //得到cron表达式
-                .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression()))
-                .build();
+                .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression())).build();
         //task 的id name cron 存入数据库  ？？耦合高？？
         scheduler.scheduleJob(jobDetail, trigger);
     }
@@ -108,11 +107,8 @@ public class TaskService {
     public void rescheduleTask(Integer taskId, String newCronExpression) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
         //构建一个新的触发器，使用新的Cron表达式
-        Trigger newTrigger = TriggerBuilder
-                .newTrigger()// 设置触发器的唯一标识
-                .withIdentity(triggerKey)
-                .withSchedule(CronScheduleBuilder.cronSchedule(newCronExpression))
-                .build();
+        Trigger newTrigger = TriggerBuilder.newTrigger()// 设置触发器的唯一标识
+                .withIdentity(triggerKey).withSchedule(CronScheduleBuilder.cronSchedule(newCronExpression)).build();
         // 调度器重新调度任务，使用新的触发器来替换原有的触发器
         scheduler.rescheduleJob(triggerKey, newTrigger);
     }
@@ -145,53 +141,50 @@ public class TaskService {
                 statusCountMap.put(triggerState, statusCountMap.getOrDefault(triggerState, 0) + 1);
 
                 // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）
-               logger.info("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() +
-                        " 的状态是 " + triggerState);
+                logger.info("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() + " 的状态是 " + triggerState);
             }
         }
 
-        // 吐出信息 打印任务状态统计信息
-        for (Map.Entry<Trigger.TriggerState, Integer> entry : statusCountMap.entrySet()){
+        // 吐出信息 打印内存任务状态 统计信息
+        for (Map.Entry<Trigger.TriggerState, Integer> entry : statusCountMap.entrySet()) {
             logger.info("状态 " + entry.getKey() + ": " + entry.getValue() + " 个任务");
         }
 
         //内存中没有任务
-        if(statusCountMap.size()==0){
+        if (statusCountMap.size() == 0) {
             logger.info("当前内存中暂无任务");
         }
     }
 
-    /******************************************************** 单次执行的任务 ****************************************************************/
+    /******************************************************** 单次定点时间执行的任务 ****************************************************************/
 
-    //创建单次任务并执行
-    public void createOnceTask(Task task) throws SchedulerException {
+    //创建单次任务并执行 自动触发
+    public void createOnceTimeTask(Task task) throws SchedulerException {
         // 创建一个JobDetail实例，并与任务类关联
         JobDetail jobDetail = JobBuilder
                 .newJob(SampleJob.class)
                 .withIdentity(task.getTaskId().toString())
                 .build();
 
-        //封装时间 拼字符串
-        //执行时间
-        ZonedDateTime dateTime = ZonedDateTime.parse("2023-09-12T11:05:00+08:00"); // 这里指定你的日期和时间，使用中国时间（UTC+8）
+        // 执行时间 封装时间 拼字符串
+//        ZonedDateTime dateTime = ZonedDateTime.parse("2023-09-12T11:05:00+08:00"); // 这里指定日期和时间，使用中国时间（UTC+8）
 
         // 创建一个Trigger实例，指定任务在特定时间执行一次
         Trigger trigger = TriggerBuilder
                 .newTrigger()
                 .withIdentity(task.getTaskId() + "Trigger")
-                .startAt(Date.from(dateTime.toInstant()))
+                .startAt(Date.from(task.getTimeExpression().toInstant())) //得到执行时间点
                 //这里设置任务的重复频率，如果不需要重复，改为.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(24).withRepeatCount(1))
 //                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(24).repeatForever())
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(24).withRepeatCount(1))
-                .build();
-
-//        // 创建一个Scheduler实例
-//        SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-//        Scheduler scheduler = schedulerFactory.getScheduler();
-//        scheduler.start();
+                .withSchedule(
+                        SimpleScheduleBuilder
+                                .simpleSchedule()
+                                .withRepeatCount(0)//设置重复次数为0，表示只触发一次
+                ).build();
 
         // 将JobDetail和Trigger关联起来，然后加入到Scheduler中
         scheduler.scheduleJob(jobDetail, trigger);
     }
+
 
 }
