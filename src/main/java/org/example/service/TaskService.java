@@ -10,10 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
+
+/*
+ * @Package org.example.service
+ * @Author hailin
+ * @Date 2023/8/11
+ * @Description : 任务服务类
+ */
 
 @Service
 public class TaskService {
@@ -23,8 +28,7 @@ public class TaskService {
     @Autowired
     private Scheduler scheduler;
 
-    @Autowired
-    private TaskDataService taskDataService;
+    /******************************************************** 循环执行的任务 cron ****************************************************************/
 
     /**
      * 创建任务并调度执行（自动触发）
@@ -32,7 +36,7 @@ public class TaskService {
      * @param task
      * @throws SchedulerException
      */
-    public void createTask(Task task) throws SchedulerException {
+    public void createLoopTask(Task task) throws SchedulerException {
         //创建任务详情
         JobDetail jobDetail = JobBuilder
                 .newJob(SampleJob.class)
@@ -41,7 +45,7 @@ public class TaskService {
         //创建触发器
         CronTrigger trigger = TriggerBuilder
                 .newTrigger()
-                .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复
+                .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复   ??试试 + task.getTaskName()
                 //得到cron表达式
                 .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression()))
                 .build();
@@ -157,6 +161,37 @@ public class TaskService {
         }
     }
 
+    /******************************************************** 单次执行的任务 ****************************************************************/
 
+    //创建单次任务并执行
+    public void createOnceTask(Task task) throws SchedulerException {
+        // 创建一个JobDetail实例，并与任务类关联
+        JobDetail jobDetail = JobBuilder
+                .newJob(SampleJob.class)
+                .withIdentity(task.getTaskId().toString())
+                .build();
+
+        //封装时间 拼字符串
+        //执行时间
+        ZonedDateTime dateTime = ZonedDateTime.parse("2023-09-12T11:05:00+08:00"); // 这里指定你的日期和时间，使用中国时间（UTC+8）
+
+        // 创建一个Trigger实例，指定任务在特定时间执行一次
+        Trigger trigger = TriggerBuilder
+                .newTrigger()
+                .withIdentity(task.getTaskId() + "Trigger")
+                .startAt(Date.from(dateTime.toInstant()))
+                //这里设置任务的重复频率，如果不需要重复，改为.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(24).withRepeatCount(1))
+//                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(24).repeatForever())
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(24).withRepeatCount(1))
+                .build();
+
+//        // 创建一个Scheduler实例
+//        SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+//        Scheduler scheduler = schedulerFactory.getScheduler();
+//        scheduler.start();
+
+        // 将JobDetail和Trigger关联起来，然后加入到Scheduler中
+        scheduler.scheduleJob(jobDetail, trigger);
+    }
 
 }

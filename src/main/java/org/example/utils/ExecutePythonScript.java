@@ -4,7 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-//启动python代码工具类
+/*
+ * @Package org.example.utils
+ * @Author hailin
+ * @Date 2023/9/16
+ * @Description :  启动python代码工具类
+ */
+
 public class ExecutePythonScript {
     private String pythonExecutable;
 

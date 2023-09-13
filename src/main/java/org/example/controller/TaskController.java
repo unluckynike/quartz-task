@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/*
+ * @Package org.example.controller
+ * @Author hailin
+ * @Date 2023/8/11
+ * @Description : 任务调度接口
+ */
+
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
@@ -25,6 +32,8 @@ public class TaskController {
     //操作数据库
     @Autowired
     private TaskDataService taskDataService;
+
+    /******************************************************** 循环执行的任务 cron ****************************************************************/
 
     /**
      * 查看数据库任务 查到的是数据库中的任务
@@ -68,13 +77,13 @@ public class TaskController {
      */
     @ApiOperation(value="创建并开启任务", notes="传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
     @PostMapping
-    public void createTask(@RequestBody Task task) throws SchedulerException {
+    public void createLoopTask(@RequestBody Task task) throws SchedulerException {
         logger.info(" taskName: " + task.getTaskName());
         boolean successAdd = taskDataService.addTask(task);
 
         if (successAdd) {
             //执行的时候 查到最后一条（也就是最新添加的）任务执行
-            taskService.createTask(taskDataService.getLastTask());
+            taskService.createLoopTask(taskDataService.getLastTask());
         }
 
     }
@@ -157,6 +166,17 @@ public class TaskController {
         if (successUpdate) {
             taskService.rescheduleTask(taskId, task.getCronExpression());
         }
+    }
 
+    /******************************************************** 单次执行的任务 ****************************************************************/
+
+
+
+    @ApiOperation(value="创建并开启任务", notes="传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @PostMapping
+    public void createOnceTask(@RequestBody Task task) throws SchedulerException {
+        logger.info(" taskName: " + task.getTaskName());
+
+        taskService.createOnceTask(task);
     }
 }

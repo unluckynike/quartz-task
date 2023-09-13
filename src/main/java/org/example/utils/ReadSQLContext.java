@@ -4,7 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-//读取sql文件内容工具类
+/*
+ * @Package org.example.utils
+ * @Author hailin
+ * @Date 2023/9/16
+ * @Description :  读取sql文件内容工具类
+ */
+
 public class ReadSQLContext {
 
     /**

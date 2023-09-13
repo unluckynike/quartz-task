@@ -14,6 +14,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+/*
+ * @Package org.example.job
+ * @Author hailin
+ * @Date 2023/8/11
+ * @Description : 具体任务实现类
+ */
+
 @Component
 public class SampleJob implements Job {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);

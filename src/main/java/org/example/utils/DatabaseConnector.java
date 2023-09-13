@@ -13,6 +13,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/*
+ * @Package org.example.utils
+ * @Author hailin
+ * @Date 2023/8/14
+ * @Description :  数据库连接工具类 开关数据库
+ */
+
 @Component
 public class DatabaseConnector {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);

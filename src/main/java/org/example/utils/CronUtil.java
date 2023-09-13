@@ -5,6 +5,13 @@ import org.quartz.CronExpression;
 import java.text.ParseException;
 import java.util.Date;
 
+/*
+ * @Package org.example.utils
+ * @Author hailin
+ * @Date 2023/9/10
+ * @Description : cron表达式工具类 合法性校验 无效性信息
+ */
+
 public class CronUtil {
     /**
      * 返回一个布尔值代表一个给定的Cron表达式的有效性

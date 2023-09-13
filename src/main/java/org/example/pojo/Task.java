@@ -6,6 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
+/*
+ * @Package org.example.pojo
+ * @Author hailin
+ * @Date 2023/8/11
+ * @Description : 任务实体
+ */
 
 @ApiModel
 public class Task {
@@ -14,7 +20,7 @@ public class Task {
     private Integer taskId;
     @ApiModelProperty("任务名称")
     private String taskName;
-    @ApiModelProperty("任务cron表达式")
+    @ApiModelProperty("任务表达式 cron表达式 ")
     private String cronExpression;
 
     @ApiModelProperty("创建时间")
@@ -28,6 +34,7 @@ public class Task {
     public Task() {
     }
 
+    //cron constructor
     public Task(Integer taskId, String taskName, String cronExpression) {
         this.taskId = taskId;
         this.taskName = taskName;
@@ -55,8 +62,8 @@ public class Task {
         return cronExpression;
     }
 
-    public void setCronExpression(String cronExpression) {
-        this.cronExpression = cronExpression;
+    public void setCronExpression(String expression) {
+        this.cronExpression = expression;
     }
 
     public Date getCreatetime() {
