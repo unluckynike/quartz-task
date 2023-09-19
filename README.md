@@ -13,7 +13,7 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 - 版本管理：Git
 - JAVA：JDK1.8
 - Maven版本：Apache Maven 3.8
-- 
+-
 
 ### 技术组成
 
@@ -33,14 +33,37 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 `task`表设计
 
-|       列名       |   数据类型   |        默认值        |        备注         |
-|:--------------:|:--------:|:-----------------:|:-----------------:|
-|     taskid     |   int    |       自动递增        |      任务ID 主键      |
-|    taskName    | varchar  |       NULL        |       任务名称        |
-| cronExpression | varchar  |       NULL        | Cron表达式 针对循环多轮任务  |
-| timeExpression | datetime |       NULL        |  时间表达式 针对单次定点任务   |
-|   createtime   | datetime | CURRENT_TIMESTAMP |       创建时间        |
-|   updatetime   | datetime | CURRENT_TIMESTAMP | 更新时间 更加修改时的时间戳更新值 |
+|       列名       |   数据类型   |  长度 |        默认值        |        备注         |
+|:--------------:|:--------:|----:|:-----------------:|:-----------------:|
+|     taskid     |   int    | 255 |       自动递增        |      任务ID 主键      |
+|    taskName    | varchar  | 255 |       NULL        |       任务名称        |
+| cronExpression | varchar  | 255 |       NULL        | Cron表达式 针对循环多轮任务  |
+| timeExpression | datetime |     |       NULL        |  时间表达式 针对单次定点任务   |
+|   createtime   | datetime |     | CURRENT_TIMESTAMP |      任务创建时间       |
+|   updatetime   | datetime |     | CURRENT_TIMESTAMP | 更新时间 修改时根据当前时间戳更新 |
+
+`task`建表语句
+
+```sql
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for task
+-- ----------------------------
+DROP TABLE IF EXISTS `task`;
+CREATE TABLE `task` (
+  `taskid` int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
+  `taskName` varchar(255) DEFAULT NULL COMMENT '任务名称\n',
+  `cronExpression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对循环多轮任务',
+  `timeExpression` datetime DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
+  `createtime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '任务创建时间',
+  `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`taskid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 1;
+```
 
 ### 功能
 
@@ -96,10 +119,13 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 - 集成swagger在线接口文档 ✅
 - 完善api在线接口文档 ✅
 - 查内存任务信息 （可优化拆分成详细信息查询 和 分别给出任务状态总数的任务统计信息）
-- 单次定点时间任务执行（只跑一次任务就结束）
-- 单次定点时间合法性星校验
+- 单次定点时间任务执行（只跑一次任务就结束）✅
+- 单次定点时间合法性校验
 
 ## 一些思考🤔️
+
+    关于结构设计
+        面向对象之策略模式
 
     关于任务状态
         单次定点时间任务是 在内存中执行完便直接删掉
@@ -127,14 +153,12 @@ Quartz还提供了Misfire处理机制，以便在错过某个作业执行时间�
 Misfire：到了任务触发时间点，但是任务没有被触发。
 
 
-
-
 <!--
 isuee!
 
-| 新 闻 网 |    新 闻 年 份     | 采 集 组 | 匹 配  |  总   |  入 库 时 间  | 匹 配 率  |
-|:-----:|:--------------:|:------|:-----|:----:|:---------:|:------:|
-| 中国科技网 | 2021、2022、2023 | 大 工   | 1303 | 2000 | 2023-9-14 | 0.6515 |
-| CNET  |   2022、2023    | 大 工   | 1599 | 1610 | 2023-9-14 | 0.9931 |
+|        新 闻 网 站         |   新 闻 年 份   |  采 集 组  |   总    |   入 库 时 间   |
+|:----------------------:|:-----------:|:-------:|:------:|:-----------:|
+|  MIT TechnologyReview  |    2023     |   太 原   |   19   |  2023-9-11  |
+|       TechCrunch       |  2016-2023  |   太 原   |  7506  |  2023-9-11  |
 
 -->
