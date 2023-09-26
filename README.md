@@ -46,23 +46,26 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 ```sql
 SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+SET
+FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- Table structure for task
 -- ----------------------------
 DROP TABLE IF EXISTS `task`;
-CREATE TABLE `task` (
-  `taskid` int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
-  `taskName` varchar(255) DEFAULT NULL COMMENT '任务名称\n',
-  `cronExpression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对循环多轮任务',
-  `timeExpression` datetime DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
-  `createtime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '任务创建时间',
-  `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`taskid`)
+CREATE TABLE `task`
+(
+    `taskid`         int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
+    `taskName`       varchar(255) DEFAULT NULL COMMENT '任务名称\n',
+    `cronExpression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对循环多轮任务',
+    `timeExpression` datetime     DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
+    `createtime`     datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '任务创建时间',
+    `updatetime`     datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`taskid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-SET FOREIGN_KEY_CHECKS = 1;
+SET
+FOREIGN_KEY_CHECKS = 1;
 ```
 
 ### 功能
@@ -153,12 +156,20 @@ Quartz还提供了Misfire处理机制，以便在错过某个作业执行时间�
 Misfire：到了任务触发时间点，但是任务没有被触发。
 
 
+
 <!--
 isuee!
 
-|        新 闻 网 站         |   新 闻 年 份   |  采 集 组  |   总    |   入 库 时 间   |
-|:----------------------:|:-----------:|:-------:|:------:|:-----------:|
-|  MIT TechnologyReview  |    2023     |   太 原   |   19   |  2023-9-11  |
-|       TechCrunch       |  2016-2023  |   太 原   |  7506  |  2023-9-11  |
+| 期 刊 网 站 |  总  |
+|:-------:|:---:|
+| Scopus  | 339 |
+
+
+| 新 闻 网 站 |       新 闻 年 份       | 采 集 组 |  总  |  入 库 时 间  |
+|:-------:|:-------------------:|:-----:|:---:|:---------:|
+|  CNET   |        2023         |  大 工  | 16  | 2023-9-21 |
+|  DARPA  | 2020、2021、2022、2023 |  大 工  | 319 | 2023-9-21 |
+|  中国科技网  |      2022、2023      |  大 工  | 839 | 2023-9-21 |
+
 
 -->
