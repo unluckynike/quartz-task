@@ -4,6 +4,8 @@
 
 swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
+在线接口文档： http://121.37.188.176:8080/swagger-ui.html
+
 ## 项目模块信息
 
 ### 开发环境
@@ -154,7 +156,6 @@ FOREIGN_KEY_CHECKS = 1;
 Quartz还提供了Misfire处理机制，以便在错过某个作业执行时间时进行处理，并保证作业能够在下一个适当的时间被执行。
 
 Misfire：到了任务触发时间点，但是任务没有被触发。
-
 
 
 <!--
