@@ -88,7 +88,7 @@ public class TaskDataService {
             preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             new DatabaseConnector().closeConnection(connection);
         }
         return task;
@@ -132,20 +132,22 @@ public class TaskDataService {
      *
      * @param taskId
      */
-    public void deleteTask(Integer taskId) {
+    public int deleteTask(Integer taskId) {
         connection = new DatabaseConnector().connect();
 
+        int i = 0;
         try {
             String sqlQuery = "DELETE FROM tasks WHERE taskId = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, taskId);
-            preparedStatement.executeUpdate();
+            i = preparedStatement.executeUpdate();
             preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             new DatabaseConnector().closeConnection(connection);
         }
+        return i;
     }
 
 

@@ -70,9 +70,16 @@ public class TaskService {
      * @param taskId
      * @throws SchedulerException
      */
-    public void pauseTask(Integer taskId) throws SchedulerException {
+    public boolean pauseTask(Integer taskId) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
+        if (triggerKey == null) {
+            return false;
+        }
+        if (scheduler.getTrigger(triggerKey) == null) {
+            return false;
+        }
         scheduler.pauseTrigger(triggerKey);
+        return true;
     }
 
     /**
@@ -81,9 +88,16 @@ public class TaskService {
      * @param taskId
      * @throws SchedulerException
      */
-    public void resumeTask(Integer taskId) throws SchedulerException {
+    public boolean resumeTask(Integer taskId) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
+        if (triggerKey==null){
+            return false;
+        }
+        if (scheduler.getTrigger(triggerKey) == null) {
+            return false;
+        }
         scheduler.resumeTrigger(triggerKey);
+        return true;
     }
 
     /**
@@ -92,8 +106,9 @@ public class TaskService {
      * @param taskId
      * @throws SchedulerException
      */
-    public void deleteTask(Integer taskId) throws SchedulerException {
-        scheduler.deleteJob(JobKey.jobKey(String.valueOf(taskId)));
+    public boolean deleteTask(Integer taskId) throws SchedulerException {
+        boolean isDelete = scheduler.deleteJob(JobKey.jobKey(String.valueOf(taskId)));
+        return isDelete;
     }
 
     /**
@@ -153,6 +168,7 @@ public class TaskService {
         if (statusCountMap.size() == 0) {
             logger.info("当前内存中暂无任务");
         }
+
     }
 
     /******************************************************** 单次定点时间执行的任务 ****************************************************************/
