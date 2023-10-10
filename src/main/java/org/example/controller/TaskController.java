@@ -6,6 +6,7 @@ import org.example.pojo.Task;
 import org.example.service.TaskDataService;
 import org.example.service.TaskService;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +74,59 @@ public class TaskController {
      */
     @ApiOperation(value = "查看内存任务", notes = "查看到的是当前内存中的任务")
     @GetMapping("/memory")
-    public void queryTaskInMemory() throws SchedulerException {
+    public Map<String, Object> queryTaskInMemory() throws SchedulerException {
+
         Map<String, Object> returnMap = new HashMap<>();  //返回参数
+        returnMap.put("code", 1);
+        returnMap.put("msg", "查看内存任务失败");
+        returnMap.put("count", 0);
+        returnMap.put("data", "");
 
-        taskService.queryTaskInMemory();
+        List<String> taskList = taskService.queryTaskInMemory();
+        if (taskList.size() == 0) {
+            returnMap.put("code", 1);
+            returnMap.put("msg", "查看内存任务 当前内存中任务数量为0");
+            returnMap.put("count", 0);
+            returnMap.put("data", "");
+        } else if (taskList.size() > 0) {
+            returnMap.put("code", 0);
+            returnMap.put("msg", "成功查看内存任务");
+            returnMap.put("count", 0);
+            returnMap.put("data", taskList);
+        }
 
+        return returnMap;
+    }
+
+    /**
+     * 查看内存任务 查看内存中的任务
+     * 请求地址: 127.0.0.1:8080/memoryState
+     *
+     * @throws SchedulerException
+     */
+    @ApiOperation(value = "查看内存任务状态", notes = "查看到的是当前内存中任务的状态")
+    @GetMapping("/memoryState")
+    public  Map<String, Object> queryTaskStateInMemory() throws SchedulerException {
+        Map<String, Object> returnMap = new HashMap<>();  //返回参数
+        returnMap.put("code", 1);
+        returnMap.put("msg", "查看内存任务状态失败");
+        returnMap.put("count", 0);
+        returnMap.put("data", "");
+
+        Map<Trigger.TriggerState, Integer> stateMap = taskService.queryTaskStateInMemory();
+        if (stateMap.size() == 0) {
+            returnMap.put("code", 1);
+            returnMap.put("msg", "查看内存任务状态 当前内存中任务数量为0");
+            returnMap.put("count", 0);
+            returnMap.put("data", "");
+        } else if (stateMap.size() > 0) {
+            returnMap.put("code", 0);
+            returnMap.put("msg", "成功查看内存任务状态");
+            returnMap.put("count", 0);
+            returnMap.put("data", stateMap);
+        }
+
+        return returnMap;
     }
 
     /**
@@ -185,7 +234,7 @@ public class TaskController {
         Map<String, Object> returnMap = new HashMap<>();
 
         int i = taskDataService.deleteTask(taskId);
-        //考虑一种需要补充的清空 删除的时候 db中有 但是他并不在内存中
+        //考虑一种需要补充的情况 删除的时候 db中有 但是他并不在内存中
         boolean isDelete = taskService.deleteTask(taskId);
 
         returnMap.put("status", i);

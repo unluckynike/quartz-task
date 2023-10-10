@@ -90,7 +90,7 @@ public class TaskService {
      */
     public boolean resumeTask(Integer taskId) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
-        if (triggerKey==null){
+        if (triggerKey == null) {
             return false;
         }
         if (scheduler.getTrigger(triggerKey) == null) {
@@ -129,17 +129,18 @@ public class TaskService {
 
 
     /**
-     * 获取当前内存中的所有任务 得到任务状态
+     * 获取当前内存中的所有任务
      *
      * @throws SchedulerException
      */
-    public void queryTaskInMemory() throws SchedulerException {
+    public List<String> queryTaskInMemory() throws SchedulerException {
         // 获取所有 TriggerKey
         List<String> groupNames = scheduler.getTriggerGroupNames();
-        // 创建一个 Map 来存储任务状态和数量
-        Map<Trigger.TriggerState, Integer> statusCountMap = new HashMap<>();
 
-        logger.info("任务状态： NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）");
+        //存储任务列表
+        List<String> tasklist = new ArrayList<String>();
+
+//        logger.info("任务状态： NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）");
         for (String groupName : groupNames) {
             GroupMatcher<TriggerKey> matcher = GroupMatcher.triggerGroupEquals(groupName);
             Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(matcher);
@@ -151,11 +152,42 @@ public class TaskService {
                 Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
                 JobKey jobKey = trigger.getJobKey();
 
+                // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）
+                tasklist.add("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() + " 的状态是 " + triggerState);
+            }
+        }
+
+        //内存中没有任务
+        if (tasklist.size() == 0) {
+            logger.info("当前内存中暂无任务");
+        }
+        return tasklist;
+
+    }
+
+    /**
+     * 获取内容任务状态
+     *
+     * @return
+     * @throws SchedulerException
+     */
+    public Map<Trigger.TriggerState, Integer> queryTaskStateInMemory() throws SchedulerException {
+        // 获取所有 TriggerKey
+        List<String> groupNames = scheduler.getTriggerGroupNames();
+        // 创建一个 Map 来存储任务状态和数量
+        Map<Trigger.TriggerState, Integer> statusCountMap = new HashMap<>();
+
+        logger.info("任务状态： NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）");
+        for (String groupName : groupNames) {
+            GroupMatcher<TriggerKey> matcher = GroupMatcher.triggerGroupEquals(groupName);
+            Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(matcher);
+
+            for (TriggerKey triggerKey : triggerKeys) {
+                // 获取 Trigger 的状态
+                Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
+
                 // 将状态和数量存入 Map
                 statusCountMap.put(triggerState, statusCountMap.getOrDefault(triggerState, 0) + 1);
-
-                // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）
-                logger.info("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() + " 的状态是 " + triggerState);
             }
         }
 
@@ -168,8 +200,10 @@ public class TaskService {
         if (statusCountMap.size() == 0) {
             logger.info("当前内存中暂无任务");
         }
+        return statusCountMap;
 
     }
+
 
     /******************************************************** 单次定点时间执行的任务 ****************************************************************/
 
