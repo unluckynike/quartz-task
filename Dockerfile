@@ -2,13 +2,13 @@
 FROM openjdk:8-jdk-alpine
 
 # 复制JAR文件到容器
-COPY task-1.0-SNAPSHOT.war /app/
+COPY task-1.0-SNAPSHOT-pro.war /app/
 
 # 设置工作目录
 WORKDIR /app
 
 # 暴露端口号
-EXPOSE 8080
+EXPOSE 8081
 
 # 启动应用程序
-CMD ["java", "-jar", "task-1.0-SNAPSHOT.war"]
+CMD ["java", "-jar", "task-1.0-SNAPSHOT-pro.war"]
