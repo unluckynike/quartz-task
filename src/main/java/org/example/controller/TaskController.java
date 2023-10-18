@@ -91,7 +91,7 @@ public class TaskController {
         } else if (taskList.size() > 0) {
             returnMap.put("code", 0);
             returnMap.put("msg", "成功查看内存任务");
-            returnMap.put("count", 0);
+            returnMap.put("count", taskList.size());
             returnMap.put("data", taskList);
         }
 
@@ -99,7 +99,7 @@ public class TaskController {
     }
 
     /**
-     * 查看内存任务 查看内存中的任务
+     * 查看内存任务 查看内存任务状态
      * 请求地址: 127.0.0.1:8080/memoryState
      *
      * @throws SchedulerException
@@ -122,7 +122,7 @@ public class TaskController {
         } else if (stateMap.size() > 0) {
             returnMap.put("code", 0);
             returnMap.put("msg", "成功查看内存任务状态");
-            returnMap.put("count", 0);
+            returnMap.put("count", stateMap.size());
             returnMap.put("data", stateMap);
         }
 
