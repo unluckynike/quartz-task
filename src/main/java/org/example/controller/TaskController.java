@@ -255,7 +255,7 @@ public class TaskController {
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value = "修改任务", notes = "传入任务id和taks对象， 修改该id下的taskName cron表达式 ")
+    @ApiOperation(value = "修改任务", notes = "传入任务id和taks对象， 修改该id下的taskName cron表达式或者time表达式 ")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PutMapping("/{taskId}")
     public Map<String, Object> rescheduleLoopTask(
@@ -301,10 +301,6 @@ public class TaskController {
      *
      * @param task
      * @throws SchedulerException json对象
-     *                            {
-     *                            "taskName": "十点半跑",
-     *                            "timeExpression": "2023-09-19 10:30:00"
-     *                            }
      */
     @ApiOperation(value = "创建单次定点任务并开启执行", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
     @PostMapping("/createOnceTimeTask")
