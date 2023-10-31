@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 /*
  * @Package org.example.controller
@@ -106,7 +107,7 @@ public class TaskController {
      */
     @ApiOperation(value = "查看内存任务状态", notes = "查看到的是当前内存中任务的状态")
     @GetMapping("/memoryState")
-    public  Map<String, Object> queryTaskStateInMemory() throws SchedulerException {
+    public Map<String, Object> queryTaskStateInMemory() throws SchedulerException {
         Map<String, Object> returnMap = new HashMap<>();  //返回参数
         returnMap.put("code", 1);
         returnMap.put("msg", "查看内存任务状态失败");
@@ -248,37 +249,48 @@ public class TaskController {
     }
 
     /**
-     * 修改任务 修改taskName cron表达式
+     * 修改任务 修改task表达式
      * 请求地址：http://localhost:8080/tasks/6
      * 请求参数：jsons数据
-     * {
-     * "taskName": "每月最后一天23点执行一次",
-     * "cronExpression": "0 0 000 23 L * ?"
-     * }
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value = "修改循环任务", notes = "传入任务id和taks对象， 修改该id下的taskName cron表达式 ")
+    @ApiOperation(value = "修改任务", notes = "传入任务id和taks对象， 修改该id下的taskName cron表达式 ")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PutMapping("/{taskId}")
     public Map<String, Object> rescheduleLoopTask(
             @PathVariable Integer taskId,
             @RequestBody Task task) throws SchedulerException {
-        logger.debug("修改任务 id：{} newTaskName: {} cron: {}", taskId, task.getTaskName(), task.getCronExpression());
+        logger.debug("修改任务 task：{} ", task.toString());
         Map<String, Object> returnMap = new HashMap<>();
         returnMap.put("status", 0);
-        returnMap.put("desc", "修改循环任务失败");
+        returnMap.put("desc", "修改任务失败");
 
-        Task newTask = new Task(taskId, task.getTaskName(), task.getCronExpression());
-        //更新数据库中的cron表达式
-        boolean successUpdate = taskDataService.updateCronTask(newTask);
-
-        //成功更新 重启任务
-        if (successUpdate) {
-            taskService.rescheduleTask(taskId, task.getCronExpression());
-            returnMap.put("status", 1);
-            returnMap.put("desc", "成功修改循环任务");
+        boolean successUpdate = false;
+        Task newTask = null;
+//        cron
+        if (taskId != null && task.getCronExpression() != null && !task.getCronExpression().isEmpty()) {
+            newTask = new Task(taskId, task.getTaskName(), task.getCronExpression());
+            successUpdate = taskDataService.updateCronTask(newTask);
+            //成功更新 重启任务
+            if (successUpdate) {
+                taskService.rescheduleCronTask(taskId, task.getCronExpression());
+                returnMap.put("status", 1);
+                returnMap.put("desc", "成功修改循环任务");
+            }
         }
+//       once
+        if (taskId != null && task.getTimeExpression() != null && !task.getTimeExpression().equals(new Date(0))) {
+            newTask = new Task(taskId, task.getTaskName(), task.getTimeExpression());
+            successUpdate = taskDataService.updateOnceTask(newTask);
+            //成功更新 重启任务
+            if (successUpdate) {
+                taskService.rescheduleOnceTask(taskId, task.getTimeExpression());
+                returnMap.put("status", 1);
+                returnMap.put("desc", "成功修改单次任务");
+            }
+        }
+
         return returnMap;
     }
 

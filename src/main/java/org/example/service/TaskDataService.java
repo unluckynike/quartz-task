@@ -128,6 +128,30 @@ public class TaskDataService {
     }
 
     /**
+     * 更新数据库task表里time任务数据
+     * @param task
+     * @return
+     */
+    public boolean updateOnceTask(Task task) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET taskName = ?, timeExpression = ? WHERE taskId = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, task.getTaskName());
+            preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));//getTime 返回自1970-1-1自现在的秒
+            preparedStatement.setInt(3, task.getTaskId());
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return false;
+    }
+
+    /**
      * 删除taks  通过taskId
      *
      * @param taskId

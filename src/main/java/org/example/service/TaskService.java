@@ -118,13 +118,37 @@ public class TaskService {
      * @param newCronExpression
      * @throws SchedulerException
      */
-    public void rescheduleTask(Integer taskId, String newCronExpression) throws SchedulerException {
+    public void rescheduleCronTask(Integer taskId, String newCronExpression) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
         //构建一个新的触发器，使用新的Cron表达式
         Trigger newTrigger = TriggerBuilder.newTrigger()// 设置触发器的唯一标识
                 .withIdentity(triggerKey).withSchedule(CronScheduleBuilder.cronSchedule(newCronExpression)).build();
         // 调度器重新调度任务，使用新的触发器来替换原有的触发器
-        scheduler.rescheduleJob(triggerKey, newTrigger);
+        try {
+            scheduler.rescheduleJob(triggerKey, newTrigger);
+        } catch (SchedulerException e) {
+            // 处理异常
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 修改任务的time 传入taskId
+     *
+     * @param taskId
+     * @param newTimeExpression
+     */
+    public void rescheduleOnceTask(Integer taskId, Date newTimeExpression) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
+        Trigger newTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerKey)
+                .startAt(newTimeExpression) // 设置任务的开始时间为新的时间表达式
+                .build();
+        try {
+            scheduler.rescheduleJob(triggerKey, newTrigger);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
     }
 
 
