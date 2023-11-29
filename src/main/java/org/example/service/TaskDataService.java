@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.controller.TaskController;
 import org.example.pojo.Task;
+import org.example.pojo.Type;
 import org.example.utils.CronUtil;
 import org.example.utils.DatabaseConnector;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class TaskDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
-    //数据库连接 这里先置 下面具体方法里才得到连接对象
+    //数据库连接 这里先置空 下面具体方法里才得到连接对象
     private Connection connection = null;
 
     /**
@@ -34,16 +35,18 @@ public class TaskDataService {
      * @return boolean 成功true 失败false
      */
     public boolean addCronTask(Task task) {
-        //检查cron表达式合不合法 成功加入数据库
+        //检查cron表达式是否合法 合法则加入数据库
         if (CronUtil.isValid(task.getCronExpression())) {
             //得到连接对象
             connection = new DatabaseConnector().connect();
 
             try {
-                String sqlQuery = "INSERT INTO tasks (taskName, cronExpression) VALUES (?, ?)";//id自增 不传参数
+                String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark) VALUES (?, ?, ?, ?)";//id自增 不传参数
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
+                preparedStatement.setString(3,task.getType().name()); //.name() 获取枚举常量的名称作为字符串。
+                preparedStatement.setString(4,task.getRemark());
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();
@@ -74,14 +77,14 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
 
         try {
-            String sqlQuery = "SELECT taskid,taskName,cronExpression,timeExpression FROM tasks ORDER BY taskid DESC LIMIT 1";
+            String sqlQuery = "SELECT task_id,task_name,cron_expression,time_expression FROM tasks ORDER BY task_id DESC LIMIT 1";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet result = preparedStatement.executeQuery();
             if (result.next()) {
-                task.setTaskId(result.getInt("taskid"));
-                task.setTaskName(result.getString("taskName"));
-                task.setCronExpression(result.getString("cronExpression"));
-                task.setTimeExpression(result.getTimestamp("timeExpression"));
+                task.setTaskId(result.getInt("task_id"));
+                task.setTaskName(result.getString("task_name"));
+                task.setCronExpression(result.getString("cron_expression"));
+                task.setTimeExpression(result.getTimestamp("time_expression"));
             }
             //关闭结果集和预编译语句。
             result.close();
@@ -129,6 +132,7 @@ public class TaskDataService {
 
     /**
      * 更新数据库task表里time任务数据
+     *
      * @param task
      * @return
      */
@@ -161,7 +165,7 @@ public class TaskDataService {
 
         int i = 0;
         try {
-            String sqlQuery = "DELETE FROM tasks WHERE taskId = ?";
+            String sqlQuery = "DELETE FROM tasks WHERE task_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, taskId);
             i = preparedStatement.executeUpdate();
@@ -184,22 +188,23 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
         List<Task> tasks = new ArrayList<>();
         try {
-            String sqlQuery = "SELECT * FROM tasks";
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,createtime,updatetime FROM tasks";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             //封装出task对象
             while (resultSet.next()) {
                 Task task = new Task();
-                task.setTaskId(resultSet.getInt("taskId"));
-                task.setTaskName(resultSet.getString("taskName"));
-                task.setCronExpression(resultSet.getString("cronExpression"));
-                task.setTimeExpression(resultSet.getDate("timeExpression"));
+                task.setTaskId(resultSet.getInt("task_id"));
+                task.setTaskName(resultSet.getString("task_name"));
+                task.setType(Type.valueOf(resultSet.getString("type")));
+                task.setCronExpression(resultSet.getString("cron_expression"));
+                task.setTimeExpression(resultSet.getDate("time_expression"));
+                task.setRemark(resultSet.getString("remark"));
                 task.setCreatetime(resultSet.getDate("createtime"));
                 task.setUpdatetime(resultSet.getDate("updatetime"));
                 tasks.add(task);
             }
-
             resultSet.close();
             preparedStatement.close();
         } catch (SQLException e) {

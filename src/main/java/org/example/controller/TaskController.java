@@ -145,7 +145,7 @@ public class TaskController {
      */
     @ApiOperation(value = "创建并开启多次循环任务", notes = "传入cron任务对象 任务自动触发 任务信息存入数据库 存入内存")
     @PostMapping("/createLoopTask")
-    public Map<String, Object> createLoopTask(@RequestBody Task task) throws SchedulerException {
+    public Map<String, Object> createCronTask(@RequestBody Task task) throws SchedulerException {
         logger.info("task infor: " + task.toString());
 
         Map<String, Object> returnMap = new HashMap<>();  //返回参数
@@ -302,14 +302,14 @@ public class TaskController {
      * @param task
      * @throws SchedulerException json对象
      */
-    @ApiOperation(value = "创建单次定点任务并开启执行", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @ApiOperation(value = "创建单次定时任务并开启执行", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
     @PostMapping("/createOnceTimeTask")
     public Map<String, Object> createOnceTimeTask(@RequestBody Task task) throws SchedulerException {
         logger.info("task infor : " + task.toString());
 
         Map<String, Object> returnMap = new HashMap<>();  //返回参数
         returnMap.put("status", 0);
-        returnMap.put("desc", "创建单次定点任务并开启执行失败");
+        returnMap.put("desc", "创建单次定时任务并开启执行失败");
         //单次任务 加入数据库
         boolean successAdd = taskDataService.addOnceTimeTask(task);
 
@@ -317,7 +317,7 @@ public class TaskController {
             //controller如果直接传task对象 拿不到taskId 还得需要过DB数据库
             taskService.createOnceTimeTask(taskDataService.getLastTask());
             returnMap.put("status", 1);
-            returnMap.put("desc", "成功创建单次定点任务并开启执行");
+            returnMap.put("desc", "成功创建单次定时任务并开启执行");
         }
         return returnMap;
     }

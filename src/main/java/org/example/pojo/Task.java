@@ -27,6 +27,12 @@ public class Task {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date timeExpression;
 
+    @ApiModelProperty("任务类型")
+    private Type type;
+
+    @ApiModelProperty("任务描述")
+    private String remark;
+
     @ApiModelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createtime = null;
@@ -101,6 +107,22 @@ public class Task {
         this.updatetime = updatetime;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -108,6 +130,8 @@ public class Task {
                 ", taskName='" + taskName + '\'' +
                 ", cronExpression='" + cronExpression + '\'' +
                 ", timeExpression=" + timeExpression +
+                ", type=" + type +
+                ", remark='" + remark + '\'' +
                 ", createtime=" + createtime +
                 ", updatetime=" + updatetime +
                 '}';

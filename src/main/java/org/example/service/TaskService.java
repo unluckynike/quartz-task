@@ -239,9 +239,6 @@ public class TaskService {
                 .withIdentity(task.getTaskId().toString())
                 .build();
 
-        // 执行时间 封装时间 拼字符串
-//        ZonedDateTime dateTime = ZonedDateTime.parse("2023-09-12T11:05:00+08:00"); // 这里指定日期和时间，使用中国时间（UTC+8）
-
         // 创建一个Trigger实例，指定任务在特定时间执行一次
         Trigger trigger = TriggerBuilder
                 .newTrigger()
