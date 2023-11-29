@@ -45,17 +45,25 @@ public class Task {
     }
 
     //cronExpression constructor
-    public Task(Integer taskId, String taskName, String cronExpression) {
+
+
+    public Task(Integer taskId, String taskName, String cronExpression, Type type, String remark) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.cronExpression = cronExpression;
+        this.type = type;
+        this.remark = remark;
     }
 
     //timeExpression constructor
-    public Task(Integer taskId, String taskName, Date timeExpression) {
+
+
+    public Task(Integer taskId, String taskName, Date timeExpression, Type type, String remark) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.timeExpression = timeExpression;
+        this.type = type;
+        this.remark = remark;
     }
 
     // getters and setters

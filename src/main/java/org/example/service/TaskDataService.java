@@ -109,11 +109,13 @@ public class TaskDataService {
             //cron表达式合法再打开数据库连接
             connection = new DatabaseConnector().connect();
             try {
-                String sqlQuery = "UPDATE tasks SET taskName = ?, cronExpression = ? WHERE taskId = ?";
+                String sqlQuery = "UPDATE tasks SET task_name = ?, cron_expression = ?, type = ?, remark = ? WHERE task_id = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
-                preparedStatement.setInt(3, task.getTaskId());
+                preparedStatement.setString(3,task.getType().name());
+                preparedStatement.setString(4,task.getRemark());
+                preparedStatement.setInt(5, task.getTaskId());
                 preparedStatement.executeUpdate();
                 preparedStatement.close();
             } catch (SQLException e) {

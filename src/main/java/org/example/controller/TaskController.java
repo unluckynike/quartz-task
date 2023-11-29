@@ -270,7 +270,7 @@ public class TaskController {
         Task newTask = null;
 //        cron
         if (taskId != null && task.getCronExpression() != null && !task.getCronExpression().isEmpty()) {
-            newTask = new Task(taskId, task.getTaskName(), task.getCronExpression());
+            newTask = new Task(taskId, task.getTaskName(), task.getCronExpression(),task.getType(),task.getRemark());
             successUpdate = taskDataService.updateCronTask(newTask);
             //成功更新 重启任务
             if (successUpdate) {
@@ -279,9 +279,9 @@ public class TaskController {
                 returnMap.put("desc", "成功修改循环任务");
             }
         }
-//       once
+//       time
         if (taskId != null && task.getTimeExpression() != null && !task.getTimeExpression().equals(new Date(0))) {
-            newTask = new Task(taskId, task.getTaskName(), task.getTimeExpression());
+            newTask = new Task(taskId, task.getTaskName(), task.getTimeExpression(),task.getType(),task.getRemark());
             successUpdate = taskDataService.updateOnceTask(newTask);
             //成功更新 重启任务
             if (successUpdate) {
