@@ -63,7 +63,7 @@ public class DatabaseConnector {
         }
     }
 
-    //util工具类单元测试
+    //测试db连接
     public static void main(String[] args) {
         DatabaseConnector databaseConnector = new DatabaseConnector();
         Connection connect = databaseConnector.connect();
