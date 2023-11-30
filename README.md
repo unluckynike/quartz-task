@@ -79,6 +79,83 @@ FOREIGN_KEY_CHECKS = 1;
 ### 功能
 
 📄**冬冬学长要的接口文档 要素：请求地址 请求方式 入参 出参**
+#### 接口出入参数
+
+创建并开启多次循环任务
+```text
+URL:http://localhost:8080/tasks/createLoopTask
+Request:POST
+RequestBody
+{
+  "taskName": "任务111",
+  "cronExpression": "0 0 1 ? * L",
+  "type": "CRON",
+  "remark": "任务111， 每周星期天凌晨1点实行一次"
+}
+ResponseBody
+{
+  "status": 1.0,
+  "desc": "成功创建并开启多次循环任务"
+}
+```
+
+创建并开启执行单次定时任务
+```text
+URL:http://localhost:8080/tasks/createOnceTimeTask
+Request:POST
+RequestBody
+{
+  "taskName": "定时任务1",
+  "timeExpression": "2023-11-30 14:35:38",
+  "type": "TIME",
+  "remark": "测试定时任务"
+}
+ResponseBody
+{
+  "status": 1.0,
+  "desc": "成功创建单次定时任务并开启执行"
+}
+```
+
+修改任务 分别针对cron和time修改
+```text
+URL:http://localhost:8080/tasks/{taskId}
+Request:PUT
+Query
+taskId:57
+RequestBody
+{
+  "taskName": "定时任务345",
+  "timeExpression": "2023-11-30 14:48:15",
+  "type": "TIME",
+  "remark": "测试更新修改定时任务"
+}
+ResponseBody
+{
+  "status": 1.0,
+  "desc": "成功修改单次任务"
+}
+
+URL:http://localhost:8080/tasks/{taskId}
+Request:PUT
+Query
+taskId:60
+RequestBody
+{
+  "taskName": "更新id为60任务",
+  "cronExpression": "0 */1 * * * ?",
+  "type": "CRON",
+  "remark": "对任务进行了需改，每隔1分钟执行一次"
+}
+
+ResponseBody
+{
+  "status": 1.0,
+  "desc": "成功修改循环任务"
+}
+```
+
+
 
 ## 表达式样例
 
