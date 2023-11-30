@@ -302,7 +302,7 @@ public class TaskController {
      * @param task
      * @throws SchedulerException json对象
      */
-    @ApiOperation(value = "创建单次定时任务并开启执行", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @ApiOperation(value = "创建并开启执行单次定时任务", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
     @PostMapping("/createOnceTimeTask")
     public Map<String, Object> createOnceTimeTask(@RequestBody Task task) throws SchedulerException {
         logger.info("task infor : " + task.toString());

@@ -35,39 +35,43 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 `task`表设计
 
-|       列名       |   数据类型   |  长度 |        默认值        |        备注         |
-|:--------------:|:--------:|----:|:-----------------:|:-----------------:|
-|     taskid     |   int    | 255 |       自动递增        |      任务ID 主键      |
-|    taskName    | varchar  | 255 |       NULL        |       任务名称        |
-| cronExpression | varchar  | 255 |       NULL        | Cron表达式 针对循环多轮任务  |
-| timeExpression | datetime |     |       NULL        |  时间表达式 针对单次定点任务   |
-|   createtime   | datetime |     | CURRENT_TIMESTAMP |      任务创建时间       |
-|   updatetime   | datetime |     | CURRENT_TIMESTAMP | 更新时间 修改时根据当前时间戳更新 |
+|       列名        |   数据类型   |  长度 |        默认值        |            备注            |
+|:---------------:|:--------:|----:|:-----------------:|:------------------------:|
+|     task_id     |   int    | 255 |       自动递增        |         任务ID 主键          |
+|    task_name    | varchar  | 255 |       NULL        |           任务名称           |
+|      type       | enum  |  |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
+| cron_expression | varchar  | 255 |       NULL        |     Cron表达式 针对循环多轮任务     |
+| time_expression | datetime |     |       NULL        |      时间表达式 针对单次定点任务      |
+|   createtime    | datetime |     | CURRENT_TIMESTAMP |          任务创建时间          |
+|   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |
+|     remark      | varchar |   255  | CURRENT_TIMESTAMP |    备注描述     |
+|      code_script      | longtext |     |  |    脚本代码     |
+
 
 `task`建表语句
 
 ```sql
 SET NAMES utf8mb4;
-SET
-FOREIGN_KEY_CHECKS = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for task
+-- Table structure for tasks
 -- ----------------------------
-DROP TABLE IF EXISTS `task`;
-CREATE TABLE `task`
-(
-    `taskid`         int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
-    `taskName`       varchar(255) DEFAULT NULL COMMENT '任务名称\n',
-    `cronExpression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对循环多轮任务',
-    `timeExpression` datetime     DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
-    `createtime`     datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '任务创建时间',
-    `updatetime`     datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`taskid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `tasks`;
+CREATE TABLE `tasks` (
+                         `task_id` int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
+                         `task_name` varchar(255) DEFAULT NULL COMMENT '任务名称\n',
+                         `type` enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
+                         `cron_expression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对多轮循环任务',
+                         `time_expression` datetime DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
+                         `createtime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                         `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                         `remark` varchar(255) DEFAULT NULL COMMENT '备注描述',
+                         `code_script` longtext COMMENT '脚本代码',
+                         PRIMARY KEY (`task_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4;
 
-SET
-FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;
 ```
 
 ### 功能
