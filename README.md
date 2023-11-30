@@ -39,39 +39,41 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 |:---------------:|:--------:|----:|:-----------------:|:------------------------:|
 |     task_id     |   int    | 255 |       自动递增        |         任务ID 主键          |
 |    task_name    | varchar  | 255 |       NULL        |           任务名称           |
-|      type       | enum  |  |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
+|      type       |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
 | cron_expression | varchar  | 255 |       NULL        |     Cron表达式 针对循环多轮任务     |
 | time_expression | datetime |     |       NULL        |      时间表达式 针对单次定点任务      |
 |   createtime    | datetime |     | CURRENT_TIMESTAMP |          任务创建时间          |
 |   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |
-|     remark      | varchar |   255  | CURRENT_TIMESTAMP |    备注描述     |
-|      code_script      | longtext |     |  |    脚本代码     |
-
+|     remark      | varchar  | 255 | CURRENT_TIMESTAMP |           备注描述           |
+|   code_script   | longtext |     |                   |           脚本代码           |
 
 `task`建表语句
 
 ```sql
 SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+SET
+FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- Table structure for tasks
 -- ----------------------------
 DROP TABLE IF EXISTS `tasks`;
-CREATE TABLE `tasks` (
-                         `task_id` int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
-                         `task_name` varchar(255) DEFAULT NULL COMMENT '任务名称\n',
-                         `type` enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
-                         `cron_expression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对多轮循环任务',
-                         `time_expression` datetime DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
-                         `createtime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                         `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                         `remark` varchar(255) DEFAULT NULL COMMENT '备注描述',
-                         `code_script` longtext COMMENT '脚本代码',
-                         PRIMARY KEY (`task_id`) USING BTREE
+CREATE TABLE `tasks`
+(
+    `task_id`         int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
+    `task_name`       varchar(255) DEFAULT NULL COMMENT '任务名称\n',
+    `type`            enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
+    `cron_expression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对多轮循环任务',
+    `time_expression` datetime     DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
+    `createtime`      datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updatetime`      datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `remark`          varchar(255) DEFAULT NULL COMMENT '备注描述',
+    `code_script`     longtext COMMENT '脚本代码',
+    PRIMARY KEY (`task_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4;
 
-SET FOREIGN_KEY_CHECKS = 1;
+SET
+FOREIGN_KEY_CHECKS = 1;
 ```
 
 ### 功能
@@ -133,8 +135,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 - 传入任务对象 任务不触发 任务信息存入数据库 存入内存或者 存入数据库不上内存 触发
 - 从db中拿已有任务上内存触发❌（运行起来是一致的）
 - 譬如 我只是需要修改db中的任务 不让他修改了就执行❌（同上）
-- 增加三个字段  任务描述（备注）；任务类型 枚举； long text类型的code（前端富文本）🤔考虑一个问题 如何判断他是python 还是sql
-
+- 增加三个字段 任务描述（备注）；任务类型 枚举； long text类型的code（前端富文本）🤔考虑一个问题 如何判断他是python 还是sql
 
 ## 待解决
 
@@ -142,7 +143,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 - 删除任务 考虑一种需要补充的情况 删除的时候 db中有 但是他并不在内存中
 - 修改任务 需要增加修改time表达式 ✅
 - 修改任务 传的id不存在不报错
-
 
 ## 一些思考🤔️
 

@@ -45,8 +45,8 @@ public class TaskDataService {
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
-                preparedStatement.setString(3,task.getType().name()); //.name() 获取枚举常量的名称作为字符串。
-                preparedStatement.setString(4,task.getRemark());
+                preparedStatement.setString(3, task.getType().name()); //.name() 获取枚举常量的名称作为字符串。
+                preparedStatement.setString(4, task.getRemark());
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();
@@ -113,8 +113,8 @@ public class TaskDataService {
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
-                preparedStatement.setString(3,task.getType().name());
-                preparedStatement.setString(4,task.getRemark());
+                preparedStatement.setString(3, task.getType().name());
+                preparedStatement.setString(4, task.getRemark());
                 preparedStatement.setInt(5, task.getTaskId());
                 preparedStatement.executeUpdate();
                 preparedStatement.close();
@@ -228,14 +228,13 @@ public class TaskDataService {
             connection = new DatabaseConnector().connect();
 
             try {
-                String sqlQuery = "INSERT INTO tasks (taskName, timeExpression) VALUES (?, ?)";//id自增 不传参数
+                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark) VALUES (?, ?, ?, ?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
-                //Timestamp 继承自 java.util.Date
-                preparedStatement.setTimestamp(
-                        2,
-                        new Timestamp(task.getTimeExpression().getTime()) //getTime 返回自1970-1-1自现在的秒
-                );
+                //Timestamp 继承自 java.util.Date //getTime 返回自1970-1-1自现在的秒
+                preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));
+                preparedStatement.setString(3, task.getType().name());
+                preparedStatement.setString(4, task.getRemark());
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();
