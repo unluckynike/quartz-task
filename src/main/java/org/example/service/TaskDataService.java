@@ -141,11 +141,13 @@ public class TaskDataService {
     public boolean updateOnceTask(Task task) {
         connection = new DatabaseConnector().connect();
         try {
-            String sqlQuery = "UPDATE tasks SET taskName = ?, timeExpression = ? WHERE taskId = ?";
+            String sqlQuery = "UPDATE tasks SET task_name = ?, time_expression = ?, type = ?, remark = ? WHERE task_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, task.getTaskName());
             preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));//getTime 返回自1970-1-1自现在的秒
-            preparedStatement.setInt(3, task.getTaskId());
+            preparedStatement.setString(3, task.getType().name());
+            preparedStatement.setString(4, task.getRemark());
+            preparedStatement.setInt(5, task.getTaskId());
             preparedStatement.executeUpdate();
             preparedStatement.close();
             return true;

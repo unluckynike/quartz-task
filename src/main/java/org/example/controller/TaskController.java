@@ -261,7 +261,9 @@ public class TaskController {
     public Map<String, Object> rescheduleLoopTask(
             @PathVariable Integer taskId,
             @RequestBody Task task) throws SchedulerException {
+
         logger.debug("修改任务 task：{} ", task.toString());
+
         Map<String, Object> returnMap = new HashMap<>();
         returnMap.put("status", 0);
         returnMap.put("desc", "修改任务失败");
