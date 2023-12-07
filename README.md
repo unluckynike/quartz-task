@@ -147,7 +147,6 @@ RequestBody
   "type": "CRON",
   "remark": "对任务进行了需改，每隔1分钟执行一次"
 }
-
 ResponseBody
 {
   "status": 1.0,

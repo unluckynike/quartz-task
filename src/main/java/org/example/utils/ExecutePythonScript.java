@@ -38,6 +38,7 @@ public class ExecutePythonScript {
             //逐行读取进程的输入流，并将每行内容添加到一个StringBuilder对象中
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
+                System.out.println(line);
             }
 
             //脚本执行完毕后，通过调用process.waitFor()方法获取脚本的退出码
@@ -57,9 +58,9 @@ public class ExecutePythonScript {
 
     //util 单元测试
     public static void main(String[] args) {
-//        String pythonExecutable = "C:\\Users\\22304\\anaconda3\\python.exe"; // 或者使用具体的Python解释器路径，如"C:/Python38/python.exe"
-        String pythonExecutable = "python";
-        String pythonScriptPath = "src/main/resources/pyfile/test.py"; //Python脚本文件的路径
+        String pythonExecutable = "/Users/hailin/opt/anaconda3/envs/Landinn/bin/python"; // 或者使用具体的Python解释器路径，如"C:/Python38/python.exe"
+//        String pythonExecutable = "python";
+        String pythonScriptPath = "src/main/resources/pyfile/test_temp.py"; //Python脚本文件的路径
 
         ExecutePythonScript executor = new ExecutePythonScript(pythonExecutable);
         String result = executor.executePythonScript(pythonScriptPath);
