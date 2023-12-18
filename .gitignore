@@ -8,12 +8,11 @@
 /dataSources.local.xml
 
 
-target
 usr
 
 # IntelliJ IDEA
 .idea/
-/target/
+.target/
 *.iml
 .classpath
 .project
