@@ -7,6 +7,10 @@
 /dataSources/
 /dataSources.local.xml
 
+
+target
+usr
+
 # IntelliJ IDEA
 .idea/
 /target/
@@ -14,6 +18,9 @@
 .classpath
 .project
 .settings/
+
+
+task.iml
 
 # macOS
 .DS_Store
