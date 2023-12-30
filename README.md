@@ -57,7 +57,7 @@ py.intercpter=
 |:---------------:|:--------:|----:|:-----------------:|:------------------------:|
 |     task_id     |   int    | 255 |       自动递增        |         任务ID 主键          |
 |    task_name    | varchar  | 255 |       NULL        |           任务名称           |
-|    taskType     |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
+|      type       |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
 | cron_expression | varchar  | 255 |       NULL        |     Cron表达式 针对循环多轮任务     |
 | time_expression | datetime |     |       NULL        |      时间表达式 针对单次定点任务      |
 |     remark      | varchar  | 255 | CURRENT_TIMESTAMP |           备注描述           |
