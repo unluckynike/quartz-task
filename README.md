@@ -6,6 +6,23 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 在线接口文档： ~~http://121.37.188.176:8080/swagger-ui.html~~
 
+## 配置文件
+
+`resource` 目录下的 `application.properties`文件
+
+```properties
+# application name
+myapp.name=Quartz Task
+#port
+server.port=
+# database
+spring.datasource.url=jdbc:mysql://xxx.xx.xxx.xxx:port/dbname?useSSL=false&characterEncoding=utf-8
+spring.datasource.username=
+spring.datasource.password=
+# py script intercpter path
+py.intercpter=
+```
+
 ## 项目模块信息
 
 ### 开发环境
