@@ -132,13 +132,6 @@ public class TaskController {
 
     /**
      * 创建并开启任务 自动触发 传入任务信息
-     * <p>
-     * 请求地址: 127.0.0.1:8080/tasks
-     * 请求参数 json数据：
-     * {
-     * "taskName": "My Task",
-     * "cronExpression": "0/10 * * * * ?"  //每10秒执行一次
-     * }
      *
      * @param task
      * @throws SchedulerException

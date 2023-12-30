@@ -27,11 +27,27 @@ public class Task {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date timeExpression;
 
-    @ApiModelProperty("任务类型")
-    private Type type;
-
     @ApiModelProperty("任务描述")
     private String remark;
+
+    @ApiModelProperty("任务类型")
+    private TaskType taskType;
+
+    @ApiModelProperty("代码脚本")
+    private String codeScript;
+
+    @ApiModelProperty("代码脚本版本")
+    private float version;
+
+    @ApiModelProperty("代码脚本状态")
+    private CodeState state;
+
+    @ApiModelProperty("代码脚本是否激活")
+    private Byte isActivate;
+
+    @ApiModelProperty("删除")
+    private Byte isDelete;
+
 
     @ApiModelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -46,23 +62,21 @@ public class Task {
 
     //cronExpression constructor
 
-
-    public Task(Integer taskId, String taskName, String cronExpression, Type type, String remark) {
+    public Task(Integer taskId, String taskName, String cronExpression, TaskType taskType, String remark) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.cronExpression = cronExpression;
-        this.type = type;
+        this.taskType = taskType;
         this.remark = remark;
     }
 
     //timeExpression constructor
 
-
-    public Task(Integer taskId, String taskName, Date timeExpression, Type type, String remark) {
+    public Task(Integer taskId, String taskName, Date timeExpression, TaskType taskType, String remark) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.timeExpression = timeExpression;
-        this.type = type;
+        this.taskType = taskType;
         this.remark = remark;
     }
 
@@ -115,12 +129,12 @@ public class Task {
         this.updatetime = updatetime;
     }
 
-    public Type getType() {
-        return type;
+    public TaskType getType() {
+        return taskType;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setType(TaskType taskType) {
+        this.taskType = taskType;
     }
 
     public String getRemark() {
@@ -131,6 +145,54 @@ public class Task {
         this.remark = remark;
     }
 
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
+    }
+
+    public String getCodeScript() {
+        return codeScript;
+    }
+
+    public void setCodeScript(String codeScript) {
+        this.codeScript = codeScript;
+    }
+
+    public float getVersion() {
+        return version;
+    }
+
+    public void setVersion(float version) {
+        this.version = version;
+    }
+
+    public CodeState getState() {
+        return state;
+    }
+
+    public void setState(CodeState state) {
+        this.state = state;
+    }
+
+    public Byte getIsActivate() {
+        return isActivate;
+    }
+
+    public void setIsActivate(Byte isActivate) {
+        this.isActivate = isActivate;
+    }
+
+    public Byte getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(Byte isDelete) {
+        this.isDelete = isDelete;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -138,7 +200,7 @@ public class Task {
                 ", taskName='" + taskName + '\'' +
                 ", cronExpression='" + cronExpression + '\'' +
                 ", timeExpression=" + timeExpression +
-                ", type=" + type +
+                ", type=" + taskType +
                 ", remark='" + remark + '\'' +
                 ", createtime=" + createtime +
                 ", updatetime=" + updatetime +

@@ -2,7 +2,7 @@ package org.example.service;
 
 import org.example.controller.TaskController;
 import org.example.pojo.Task;
-import org.example.pojo.Type;
+import org.example.pojo.TaskType;
 import org.example.utils.CronUtil;
 import org.example.utils.DatabaseConnector;
 import org.slf4j.Logger;
@@ -201,7 +201,7 @@ public class TaskDataService {
                 Task task = new Task();
                 task.setTaskId(resultSet.getInt("task_id"));
                 task.setTaskName(resultSet.getString("task_name"));
-                task.setType(Type.valueOf(resultSet.getString("type")));
+                task.setType(TaskType.valueOf(resultSet.getString("type")));
                 task.setCronExpression(resultSet.getString("cron_expression"));
                 task.setTimeExpression(resultSet.getDate("time_expression"));
                 task.setRemark(resultSet.getString("remark"));

@@ -6,6 +6,8 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 在线接口文档： ~~http://121.37.188.176:8080/swagger-ui.html~~
 
+语雀在线接口文档：
+
 ## 配置文件
 
 `resource` 目录下的 `application.properties`文件
@@ -55,13 +57,17 @@ py.intercpter=
 |:---------------:|:--------:|----:|:-----------------:|:------------------------:|
 |     task_id     |   int    | 255 |       自动递增        |         任务ID 主键          |
 |    task_name    | varchar  | 255 |       NULL        |           任务名称           |
-|      type       |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
+|    taskType     |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
 | cron_expression | varchar  | 255 |       NULL        |     Cron表达式 针对循环多轮任务     |
 | time_expression | datetime |     |       NULL        |      时间表达式 针对单次定点任务      |
-|   createtime    | datetime |     | CURRENT_TIMESTAMP |          任务创建时间          |
-|   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |
 |     remark      | varchar  | 255 | CURRENT_TIMESTAMP |           备注描述           |
 |   code_script   | longtext |     |                   |           脚本代码           |
+|     version     |   flot   |     |         1         |      脚本代码版本号 默认为1.0      |
+|      state      |   enum   |     |                   |     脚本代码状态 启用 暂停 停止      |
+|   is_activate   |   bit    |     |                   |         脚本代码是否激活         |
+|    is_delete    |   bit    |     |                   |           逻辑删除           |
+|   createtime    | datetime |     | CURRENT_TIMESTAMP |          任务创建时间          |
+|   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |
 
 `task`建表语句
 
@@ -81,30 +87,37 @@ CREATE TABLE `tasks`
     `type`            enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
     `cron_expression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对多轮循环任务',
     `time_expression` datetime     DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
-    `createtime`      datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updatetime`      datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `remark`          varchar(255) DEFAULT NULL COMMENT '备注描述',
     `code_script`     longtext COMMENT '脚本代码',
+    `version`         float unsigned DEFAULT '1' COMMENT '脚本代码版本号 默认为1.0',
+    `state`           enum('ENABLED','PAUSED','STOPPED') DEFAULT NULL COMMENT '脚本代码状态 启用 暂停 停止',
+    `is_activate`     bit(1)       DEFAULT NULL COMMENT '是否激活',
+    `is_delete`       bit(1)       DEFAULT NULL COMMENT '逻辑删除',
+    `createtime`      datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updatetime`      datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`task_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4;
 
 SET
 FOREIGN_KEY_CHECKS = 1;
+
 ```
 
 ### 功能
 
 📄**要求接口文档**
-  - 请求地址 
-  - 请求方式 
-  - 入参 
-  - 出参
+
+- 请求地址
+- 请求方式
+- 入参
+- 出参
 
 后续写个语雀接口文档
 
 #### 接口出入参数
 
 创建并开启多次循环任务
+
 ```text
 URL:http://localhost:8080/tasks/createLoopTask
 Request:POST
@@ -112,7 +125,7 @@ RequestBody
 {
   "taskName": "任务111",
   "cronExpression": "0 0 1 ? * L",
-  "type": "CRON",
+  "taskType": "CRON",
   "remark": "任务111， 每周星期天凌晨1点实行一次"
 }
 ResponseBody
@@ -123,6 +136,7 @@ ResponseBody
 ```
 
 创建并开启执行单次定时任务
+
 ```text
 URL:http://localhost:8080/tasks/createOnceTimeTask
 Request:POST
@@ -130,7 +144,7 @@ RequestBody
 {
   "taskName": "定时任务1",
   "timeExpression": "2023-11-30 14:35:38",
-  "type": "TIME",
+  "taskType": "TIME",
   "remark": "测试定时任务"
 }
 ResponseBody
@@ -141,6 +155,7 @@ ResponseBody
 ```
 
 修改任务 分别针对cron和time修改
+
 ```text
 URL:http://localhost:8080/tasks/{taskId}
 Request:PUT
@@ -150,7 +165,7 @@ RequestBody
 {
   "taskName": "定时任务345",
   "timeExpression": "2023-11-30 14:48:15",
-  "type": "TIME",
+  "taskType": "TIME",
   "remark": "测试更新修改定时任务"
 }
 ResponseBody
@@ -167,7 +182,7 @@ RequestBody
 {
   "taskName": "更新id为60任务",
   "cronExpression": "0 */1 * * * ?",
-  "type": "CRON",
+  "taskType": "CRON",
   "remark": "对任务进行了需改，每隔1分钟执行一次"
 }
 ResponseBody
@@ -177,10 +192,8 @@ ResponseBody
 }
 ```
 
-
-
 ## 表达式样例
-    
+
 循环任务使用cron表达式
 
 单次任务使用time表达式
@@ -235,17 +248,18 @@ ResponseBody
 - 查内存任务信息 （可优化拆分成详细信息查询 和 分别给出任务状态总数的任务统计信息）✅
 - 单次定点时间任务执行（只跑一次任务就结束）✅
 - 单次定点时间合法性校验 ✅
-- ~~传入任务对象 任务不触发 任务信息存入数据库 存入内存或者 存入数据库不上内存 触发~~ （前端控制了创建任务都先挂起暂停）❌ 
+- ~~传入任务对象 任务不触发 任务信息存入数据库 存入内存或者 存入数据库不上内存 触发~~ （前端控制了创建任务都先挂起暂停）❌
 - ~~从db中拿已有任务上内存触发~~ ❌（运行起来是一致的）
 - ~~譬如 我只是需要修改db中的任务 不让他修改了就执行~~ ❌（同上）
-- 增加三个字段 
-  - ✅任务描述（备注）； 
-  - ✅任务类型 枚举； 
-  - long text类型的code（前端富文本）🤔考虑一个问题 如何判断他是python 还是sql
+- 增加三个字段
+    - ✅任务描述（备注）；
+    - ✅任务类型 枚举；
+    - long text类型的code（前端富文本）🤔考虑一个问题 如何判断他是python 还是sql
 - 大字段存py脚本，
 - 多任务列表 多任务执行
 - 考虑任务的py版本 是否生效 版本修改记录
-- 统一py脚本流程逻辑  脚本输出信息 （后续出统一模版）
+- 统一py脚本流程逻辑 脚本输出信息 （后续出统一模版）
+- 切换8.0版本数据库
 
 ## 待解决
 
@@ -256,9 +270,8 @@ ResponseBody
 - 配置文件 集成抽取配置文件的值，统一写到`yml`或者`properties`文件中 ✅
 
 ## 集成问题
-  
-  `ExecutePythonScript` 有时会脚本错误 
 
+`ExecutePythonScript` 有时会脚本错误
 
 ## 一些思考🤔️
 

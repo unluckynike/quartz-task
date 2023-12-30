@@ -6,7 +6,7 @@ package org.example.pojo;
  * @Description : 枚举任务类型
  */
 
-public enum Type {
+public enum TaskType {
     CRON,
     TIME
 }
