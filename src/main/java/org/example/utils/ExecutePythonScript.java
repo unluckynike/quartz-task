@@ -15,7 +15,11 @@ public class ExecutePythonScript {
     private String pythonExecutable;
 
     public ExecutePythonScript(String pythonExecutable) {
-        this.pythonExecutable = pythonExecutable;
+        if (pythonExecutable == null || pythonExecutable.isEmpty()) {
+            this.pythonExecutable = "python";
+        } else {
+            this.pythonExecutable = pythonExecutable;
+        }
     }
 
     /**
@@ -58,9 +62,11 @@ public class ExecutePythonScript {
 
     //util 单元测试
     public static void main(String[] args) {
-        String pythonExecutable = "/Users/hailin/opt/anaconda3/envs/Landinn/bin/python"; // 或者使用具体的Python解释器路径，如"C:/Python38/python.exe"
+//        String pythonExecutable = "/Users/hailin/opt/anaconda3/envs/Landinn/bin/python"; // 或者使用具体的Python解释器路径，如"C:/Python38/python.exe"
 //        String pythonExecutable = "python";
-        String pythonScriptPath = "src/main/resources/pyfile/test_temp.py"; //Python脚本文件的路径
+
+        String pythonExecutable = PropertyLoader.loadProperties().getProperty("py.intercpter");
+        String pythonScriptPath = "src/main/resources/pyfile/test.py"; //Python脚本文件的路径
 
         ExecutePythonScript executor = new ExecutePythonScript(pythonExecutable);
         String result = executor.executePythonScript(pythonScriptPath);
