@@ -18,7 +18,7 @@ myapp.name=Quartz Task
 #port
 server.port=
 # database
-spring.datasource.url=jdbc:mysql://xxx.xx.xxx.xxx:port/dbname?useSSL=false&characterEncoding=utf-8
+spring.datasource.url=
 spring.datasource.username=
 spring.datasource.password=
 # py script intercpter path
@@ -34,7 +34,7 @@ py.intercpter=
 - 版本管理：Git
 - JAVA：JDK1.8
 - Maven：Apache Maven 3.8
-- MySQL: 5.7
+- MySQL: 5.7（后面切换成了8.0）
 
 ### 技术路线
 
@@ -259,7 +259,7 @@ ResponseBody
 - 多任务列表 多任务执行
 - 考虑任务的py版本 是否生效 版本修改记录
 - 统一py脚本流程逻辑 脚本输出信息 （后续出统一模版）
-- 切换8.0版本数据库
+- 切换8.0版本数据库 ✅
 
 ## 待解决
 
@@ -271,7 +271,7 @@ ResponseBody
 
 ## 集成问题
 
-`ExecutePythonScript` 有时会脚本错误
+多任务功能做了之后留意这个问题 `ExecutePythonScript` 有时会脚本错误 
 
 ## 一些思考🤔️
 

@@ -200,8 +200,13 @@ public class Task {
                 ", taskName='" + taskName + '\'' +
                 ", cronExpression='" + cronExpression + '\'' +
                 ", timeExpression=" + timeExpression +
-                ", type=" + taskType +
                 ", remark='" + remark + '\'' +
+                ", taskType=" + taskType +
+                ", codeScript='" + codeScript + '\'' +
+                ", version=" + version +
+                ", state=" + state +
+                ", isActivate=" + isActivate +
+                ", isDelete=" + isDelete +
                 ", createtime=" + createtime +
                 ", updatetime=" + updatetime +
                 '}';
