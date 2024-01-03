@@ -161,7 +161,7 @@ public class TaskDataService {
     }
 
     /**
-     * 删除taks  通过taskId
+     * 删除taks 逻辑删除 通过taskId
      *
      * @param taskId
      */
@@ -170,7 +170,30 @@ public class TaskDataService {
 
         int i = 0;
         try {
-            String sqlQuery = "DELETE FROM tasks WHERE task_id = ?";
+            String sqlQuery = "UPDATE tasks SET is_delete = 1 WHERE task_id =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskId);
+            i = preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return i;
+    }
+
+    /**
+     * 撤回删除 逻辑删除 通过taskId
+     * @param taskId
+     * @return
+     */
+    public int recallDeleteTask(Integer taskId) {
+        connection = new DatabaseConnector().connect();
+
+        int i = 0;
+        try {
+            String sqlQuery = "UPDATE tasks SET is_delete = 0 WHERE task_id =?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, taskId);
             i = preparedStatement.executeUpdate();

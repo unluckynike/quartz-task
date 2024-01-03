@@ -220,7 +220,7 @@ public class TaskController {
      * @param taskId
      * @throws SchedulerException
      */
-    @ApiOperation(value = "删除任务", notes = "传入任务id 通过id删除内存中的任务 任务在内存中清空（如果存在） 数据库中删除数据")
+    @ApiOperation(value = "删除任务", notes = "传入任务id 通过id删除内存中的任务 任务在内存中清空（如果存在） 数据库中删除数据（已经由物理删除改为逻辑删除）")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @DeleteMapping("/{taskId}")
     public Map<String, Object> deleteTask(@PathVariable("taskId") Integer taskId) throws SchedulerException {
