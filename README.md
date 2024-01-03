@@ -66,7 +66,7 @@ py.intercpter=
 |      state      |   enum   |     |                   |     脚本代码状态 启用 暂停 停止      |
 |   is_activate   |   bit    |     |                   |         脚本代码是否激活         |
 |    is_delete    |   bit    |     |                   |           逻辑删除           |
-|   createtime    | datetime |     | CURRENT_TIMESTAMP |          任务创建时间          |
+|   createtime    | datetime |     | CURRENT_TIMESTAMP |    创建时间 得到的是当前时间戳值        |
 |   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |
 
 `task`建表语句
