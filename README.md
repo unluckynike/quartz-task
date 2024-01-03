@@ -10,6 +10,12 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 ## 配置文件
 
+`utils`包路径下的`PropertyLoader.java`
+
+```java
+
+```
+
 `resource` 目录下的 `application.properties`文件
 
 ```properties

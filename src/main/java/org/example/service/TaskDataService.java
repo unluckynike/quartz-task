@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.controller.TaskController;
+import org.example.pojo.CodeState;
 import org.example.pojo.Task;
 import org.example.pojo.TaskType;
 import org.example.utils.CronUtil;
@@ -192,7 +193,7 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
         List<Task> tasks = new ArrayList<>();
         try {
-            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,createtime,updatetime FROM tasks";
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=0 ";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -205,6 +206,11 @@ public class TaskDataService {
                 task.setCronExpression(resultSet.getString("cron_expression"));
                 task.setTimeExpression(resultSet.getDate("time_expression"));
                 task.setRemark(resultSet.getString("remark"));
+                task.setCodeScript(resultSet.getString("code_script"));
+                task.setVersion(resultSet.getFloat("version"));
+                task.setState(CodeState.valueOf(resultSet.getString("state")));
+                task.setIsActivate(resultSet.getByte("is_activate"));
+                task.setIsDelete(resultSet.getByte("is_delete"));
                 task.setCreatetime(resultSet.getDate("createtime"));
                 task.setUpdatetime(resultSet.getDate("updatetime"));
                 tasks.add(task);
@@ -215,7 +221,6 @@ public class TaskDataService {
             e.printStackTrace();
         } finally {
             new DatabaseConnector().closeConnection(connection);
-
         }
 
         return tasks;

@@ -47,7 +47,6 @@ public class TaskService {
                 .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复   ?? 试试 + task.getTaskName()
                 //得到cron表达式
                 .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression())).build();
-        //task 的id name cron 存入数据库  ？？耦合高？？
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
@@ -190,7 +189,7 @@ public class TaskService {
     }
 
     /**
-     * 获取内容任务状态
+     * 获取内存任务状态
      *
      * @return
      * @throws SchedulerException

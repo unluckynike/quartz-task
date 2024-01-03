@@ -43,7 +43,7 @@ public class Task {
     private CodeState state;
 
     @ApiModelProperty("代码脚本是否激活")
-    private Byte isActivate;
+    private Byte isActivate;//Byte取值可以是 null、0 、1，可以通过判断 null 或具体的数值来表示布尔状态。
 
     @ApiModelProperty("删除")
     private Byte isDelete;

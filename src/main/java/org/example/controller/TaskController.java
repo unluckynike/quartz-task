@@ -89,7 +89,7 @@ public class TaskController {
             returnMap.put("msg", "查看内存任务 当前内存中任务数量为0");
             returnMap.put("count", 0);
             returnMap.put("data", "");
-        } else if (taskList.size() > 0) {
+        } else {
             returnMap.put("code", 0);
             returnMap.put("msg", "成功查看内存任务");
             returnMap.put("count", taskList.size());
@@ -120,7 +120,7 @@ public class TaskController {
             returnMap.put("msg", "查看内存任务状态 当前内存中任务数量为0");
             returnMap.put("count", 0);
             returnMap.put("data", "");
-        } else if (stateMap.size() > 0) {
+        } else {
             returnMap.put("code", 0);
             returnMap.put("msg", "成功查看内存任务状态");
             returnMap.put("count", stateMap.size());
@@ -194,7 +194,7 @@ public class TaskController {
      * @param taskId
      * @throws SchedulerException
      */
-    @ApiOperation(value = "启动任务", notes = "传入任务id 通过id重新启动内存中的任务")
+    @ApiOperation(value = "重启任务", notes = "传入任务id 通过id重新启动内存中的任务")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PostMapping("/{taskId}/resume")
     public Map<String, Object> resumeTask(@PathVariable Integer taskId) throws SchedulerException {
@@ -244,7 +244,6 @@ public class TaskController {
     /**
      * 修改任务 修改task表达式
      * 请求地址：http://localhost:8080/tasks/6
-     * 请求参数：jsons数据
      *
      * @throws SchedulerException
      */

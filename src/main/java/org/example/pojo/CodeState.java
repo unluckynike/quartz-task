@@ -10,6 +10,5 @@ public enum CodeState {
 
     ENABLED,
     PAUSED,
-    STOPPED;
-
+    STOPPED
 }
