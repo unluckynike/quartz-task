@@ -42,12 +42,13 @@ public class TaskDataService {
             connection = new DatabaseConnector().connect();
 
             try {
-                String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark) VALUES (?, ?, ?, ?)";//id自增 不传参数
+                String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script) VALUES (?, ?, ?, ?,?)";//id自增 不传参数
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
                 preparedStatement.setString(3, task.getType().name()); //.name() 获取枚举常量的名称作为字符串。
                 preparedStatement.setString(4, task.getRemark());
+                preparedStatement.setString(5, task.getCodeScript());
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();
@@ -67,8 +68,6 @@ public class TaskDataService {
 
     /**
      * 查到最后一条（最新添加）任务 这个用于创建任务之后调用 查到数据库最后一条（新插入的）数据 放进内存里触发任务
-     * <p>
-     * ！！！！！ 实体同时有 cronExpression 和 timeExpression  改方法需要改写 ！！！！！！
      *
      * @return Task 返回在数据库中查到的task
      */
@@ -185,6 +184,7 @@ public class TaskDataService {
 
     /**
      * 撤回删除 逻辑删除 通过taskId
+     *
      * @param taskId
      * @return
      */
@@ -258,13 +258,14 @@ public class TaskDataService {
             connection = new DatabaseConnector().connect();
 
             try {
-                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark) VALUES (?, ?, ?, ?)";
+                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script) VALUES (?, ?, ?, ?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 //Timestamp 继承自 java.util.Date //getTime 返回自1970-1-1自现在的秒
                 preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));
                 preparedStatement.setString(3, task.getType().name());
                 preparedStatement.setString(4, task.getRemark());
+                preparedStatement.setString(5, task.getCodeScript());
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();

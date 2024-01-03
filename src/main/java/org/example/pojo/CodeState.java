@@ -8,6 +8,7 @@ package org.example.pojo;
 
 public enum CodeState {
 
+    CREATED,
     ENABLED,
     PAUSED,
     STOPPED
