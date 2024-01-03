@@ -40,15 +40,18 @@ public class TaskDataService {
         if (CronUtil.isValid(task.getCronExpression())) {
             //得到连接对象
             connection = new DatabaseConnector().connect();
+            long identifyGroup = System.currentTimeMillis();
+
 
             try {
-                String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script) VALUES (?, ?, ?, ?,?)";//id自增 不传参数
+                String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";//id自增 不传参数
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
                 preparedStatement.setString(3, task.getType().name()); //.name() 获取枚举常量的名称作为字符串。
                 preparedStatement.setString(4, task.getRemark());
                 preparedStatement.setString(5, task.getCodeScript());
+                preparedStatement.setLong(6, identifyGroup);
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();
@@ -216,7 +219,7 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
         List<Task> tasks = new ArrayList<>();
         try {
-            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=0 ";
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=0 ";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -230,6 +233,7 @@ public class TaskDataService {
                 task.setTimeExpression(resultSet.getDate("time_expression"));
                 task.setRemark(resultSet.getString("remark"));
                 task.setCodeScript(resultSet.getString("code_script"));
+                task.setIdentifyGroup(resultSet.getLong("identify_group"));
                 task.setVersion(resultSet.getFloat("version"));
                 task.setState(CodeState.valueOf(resultSet.getString("state")));
                 task.setIsActivate(resultSet.getByte("is_activate"));
@@ -256,9 +260,10 @@ public class TaskDataService {
         if (true) {//先来一个true 后面加时间校验
             //得到连接对象
             connection = new DatabaseConnector().connect();
+            long identifyGroup = System.currentTimeMillis();
 
             try {
-                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script) VALUES (?, ?, ?, ?,?)";
+                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 //Timestamp 继承自 java.util.Date //getTime 返回自1970-1-1自现在的秒
@@ -266,6 +271,7 @@ public class TaskDataService {
                 preparedStatement.setString(3, task.getType().name());
                 preparedStatement.setString(4, task.getRemark());
                 preparedStatement.setString(5, task.getCodeScript());
+                preparedStatement.setLong(6, identifyGroup);
                 preparedStatement.executeUpdate();
                 //关闭预编译语句，释放相关资源。
                 preparedStatement.close();

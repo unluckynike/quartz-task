@@ -20,6 +20,9 @@ public class Task {
     private Integer taskId;
     @ApiModelProperty("任务名称")
     private String taskName;
+    @ApiModelProperty("任务类型")
+    private TaskType taskType;
+
     @ApiModelProperty("任务表达式 cron表达式 针对多次循环时间任务")
     private String cronExpression;
 
@@ -27,11 +30,12 @@ public class Task {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date timeExpression;
 
+
     @ApiModelProperty("任务描述")
     private String remark;
 
-    @ApiModelProperty("任务类型")
-    private TaskType taskType;
+    @ApiModelProperty("任务组标识符")
+    private long identifyGroup;
 
     @ApiModelProperty("代码脚本")
     private String codeScript;
@@ -177,6 +181,14 @@ public class Task {
         this.state = state;
     }
 
+    public long getIdentifyGroup() {
+        return identifyGroup;
+    }
+
+    public void setIdentifyGroup(long identifyGroup) {
+        this.identifyGroup = identifyGroup;
+    }
+
     public Byte getIsActivate() {
         return isActivate;
     }
@@ -198,10 +210,11 @@ public class Task {
         return "Task{" +
                 "taskId=" + taskId +
                 ", taskName='" + taskName + '\'' +
+                ", taskType=" + taskType +
                 ", cronExpression='" + cronExpression + '\'' +
                 ", timeExpression=" + timeExpression +
                 ", remark='" + remark + '\'' +
-                ", taskType=" + taskType +
+                ", identifyGroup=" + identifyGroup +
                 ", codeScript='" + codeScript + '\'' +
                 ", version=" + version +
                 ", state=" + state +

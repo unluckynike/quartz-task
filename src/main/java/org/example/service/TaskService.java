@@ -175,7 +175,7 @@ public class TaskService {
                 Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
                 JobKey jobKey = trigger.getJobKey();
 
-                // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成）
+                // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成） 考虑这里与db交互查一次？
                 tasklist.add("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() + " 的状态是 " + triggerState);
             }
         }
