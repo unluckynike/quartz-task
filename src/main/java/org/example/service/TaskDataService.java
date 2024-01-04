@@ -42,7 +42,6 @@ public class TaskDataService {
             connection = new DatabaseConnector().connect();
             long identifyGroup = System.currentTimeMillis();
 
-
             try {
                 String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";//id自增 不传参数
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
@@ -80,14 +79,16 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
 
         try {
-            String sqlQuery = "SELECT task_id,task_name,cron_expression,time_expression FROM tasks ORDER BY task_id DESC LIMIT 1";
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,code_script FROM tasks ORDER BY task_id DESC LIMIT 1";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet result = preparedStatement.executeQuery();
             if (result.next()) {
                 task.setTaskId(result.getInt("task_id"));
                 task.setTaskName(result.getString("task_name"));
+                task.setTaskType(TaskType.valueOf(result.getString("type")));
                 task.setCronExpression(result.getString("cron_expression"));
                 task.setTimeExpression(result.getTimestamp("time_expression"));
+                task.setCodeScript(result.getString("code_script"));
             }
             //关闭结果集和预编译语句。
             result.close();
@@ -254,7 +255,11 @@ public class TaskDataService {
     }
 
 
-    // 新增单次定点时间任务
+    /**
+     * 新增单次定点时间任务
+     * @param task
+     * @return
+     */
     public boolean addOnceTimeTask(Task task) {
         //检查时间格式合不合法 成功加入数据库
         if (true) {//先来一个true 后面加时间校验
@@ -288,6 +293,37 @@ public class TaskDataService {
             return false;
         }
     }
+
+
+    /**
+     * 根据taskId获得代码脚本
+     * @param taskId
+     * @return
+     */
+    public String getCodeScriptById(Integer taskId){
+        String codeScript = null;
+
+        try (Connection connection = new DatabaseConnector().connect()) {
+            String sqlQuery = "SELECT code_script FROM tasks WHERE task_id=?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setInt(1, taskId);
+
+                // 执行查询
+                try (ResultSet resultSet = preparedStatement.executeQuery()) { //使用 try-with-resources 语句来自动关闭资源，确保在发生异常时也会正确关闭连接
+                    if (resultSet.next()) {
+                        // 从结果集中获取代码脚本
+                        codeScript = resultSet.getString("code_script");
+                    }
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return codeScript;
+    }
+
 
 
 }

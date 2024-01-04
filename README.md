@@ -95,34 +95,31 @@ py.intercpter=
 
 ```sql
 SET NAMES utf8mb4;
-SET
-FOREIGN_KEY_CHECKS = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- Table structure for tasks
 -- ----------------------------
 DROP TABLE IF EXISTS `tasks`;
-CREATE TABLE `tasks`
-(
-    `task_id`         int(255) NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
-    `task_name`       varchar(255) DEFAULT NULL COMMENT '任务名称\n',
-    `type`            enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
-    `cron_expression` varchar(255) DEFAULT NULL COMMENT 'Cron表达式 针对多轮循环任务',
-    `time_expression` datetime     DEFAULT NULL COMMENT '时间表达式 针对单次定点任务',
-    `remark`          varchar(255) DEFAULT NULL COMMENT '备注描述',
-    `code_script`     longtext COMMENT '脚本代码',
-    `version`         float unsigned DEFAULT '1' COMMENT '脚本代码版本号 默认为1.0',
-    `state`           enum('ENABLED','PAUSED','STOPPED') DEFAULT NULL COMMENT '脚本代码状态 启用 暂停 停止',
-    `is_activate`     bit(1)       DEFAULT NULL COMMENT '是否激活',
-    `is_delete`       bit(1)       DEFAULT NULL COMMENT '逻辑删除',
-    `createtime`      datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updatetime`      datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`task_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `tasks` (
+                       `task_id` int NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
+                       `task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_cs_0900_ai_ci DEFAULT NULL COMMENT '任务名称',
+                       `type` enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
+                       `cron_expression` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'CRON表达式 针对多轮循环任务',
+                       `time_expression` datetime DEFAULT NULL COMMENT 'TIME表达式 针对单次定点任务',
+                       `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '任务备注描述',
+                       `code_script` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '脚本代码',
+                       `identify_group` bigint unsigned DEFAULT NULL COMMENT '任务组标识符',
+                       `version` float unsigned DEFAULT '1' COMMENT '脚本代码版本号 默认值1',
+                       `state` enum('ENABLED','PAUSED','STOPPED','CREATED') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'CREATED' COMMENT '状态 启用 暂停 停止 创建 默认值创建',
+                       `is_activate` bit(1) DEFAULT b'0' COMMENT '是否激活 默认值0',
+                       `is_delete` bit(1) DEFAULT b'0' COMMENT '是否删除 默认值0',
+                       `createtime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                       `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                       PRIMARY KEY (`task_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-SET
-FOREIGN_KEY_CHECKS = 1;
-
+SET FOREIGN_KEY_CHECKS = 1;
 ```
 
 ### 功能
@@ -283,8 +280,10 @@ ResponseBody
     - ✅long text类型的code（前端富文本）考虑一个问题🤔 ~~如何判断他是python 还是sql~~ (sql后面也统一到py脚本里)
 - ✅大字段存py脚本，
 - 多任务列表 多任务执行
-  - 脚本执行逻辑需改 每次从db中拿到code_script 并且执行的是is_activate为1的
-  - 修改任务做整改 修改任务实则是新增一条需改后的数据 并且将被修改的那条is_activate为0 保证一组只有一个is_activate为1的数据
+  - ✅脚本执行逻辑需改 每次从db中拿到code_script 
+  - 任务执行 执行的是is_activate为1的
+  - 修改任务做整改 修改任务实则是新增一条需改后的数据 
+  - 修改任务 是将被修改的那条is_activate置为0 且要保证一组只有一个is_activate为1的数据
 - 考虑任务的py版本 是否生效 版本记录
   - 开新接口 一组的版本代码查询 
 - ✅脚本代码状态 创建 启用 暂停 停止

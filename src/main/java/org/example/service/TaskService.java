@@ -37,9 +37,10 @@ public class TaskService {
      */
     public void createLoopTask(Task task) throws SchedulerException {
         //创建任务详情
-        JobDetail jobDetail = JobBuilder
+        JobDetail jobDetail = JobBuilder //可以加description 用remake值
                 .newJob(SampleJob.class)
                 .withIdentity(task.getTaskId().toString())//给的是id 因为考虑到任务名字可能重复
+                .usingJobData("codeScript", task.getCodeScript()) // 往JobData里面放 获取传入的Py脚本内容
                 .build();
         //创建触发器
         CronTrigger trigger = TriggerBuilder

@@ -4,6 +4,7 @@ import org.example.controller.TaskController;
 import org.example.utils.ExecutePythonScript;
 import org.example.utils.ReadSQLContext;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ import java.util.Date;
  * @Package org.example.job
  * @Author hailin
  * @Date 2023/8/11
- * @Description : 具体任务实现类  实现了 Job接口的 execute（）方法
+ * @Description : 具体任务实现类  实现Job接口的 execute（）方法
  */
 
 @Component
@@ -26,29 +27,30 @@ public class SampleJob implements Job {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
     //SQL文件路径
     private final String SQL_FILE_PAHT = "src/main/resources/sqlfile/test.sql";
-    //    private final String SQL_FILE_PAHT = "D:\\Project\\IDEA\\task\\src\\main\\resources\\sqlfile\\test.sql";
-    //Python文件路径
-    private final String PY_FILE_PATH = "src/main/resources/pyfile/test.py";
-    //    private final String PY_FILE_PATH = "D:\\Project\\IDEA\\task\\src\\main\\resources\\pyfile\\test.py";
-    //python解释器
-    private final String PY_INTERCPTER_PATH = "python";//可以换成本地解释器
+
+    //default python interceptor
+    private final String PY_INTERCPTER_PATH = "python";
+    ExecutePythonScript executor = new ExecutePythonScript(PY_INTERCPTER_PATH);
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         Date now = Calendar.getInstance().getTime();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println(format.format(now) + " 执行job...");
+        logger.info(format.format(now) + " 执行job...");
 
-        //实现定时任务逻辑
+        JobDataMap jobDataMap = context.getMergedJobDataMap();
+        String codeScript = jobDataMap.getString("codeScript");
 
-        //抓数据
+//        // 获取任务执行时的数据上下文
+//        JobDataMap jobDataMapp = context.getJobDetail().getJobDataMap();
+//        // 获取传递给任务的数据，这里是获取名为 "codeScript" 的数据
+//        String codeScriptt = jobDataMap.getString("codeScript");
 
-        //执行.py文件 方法样例
-        ExecutePythonScript executor = new ExecutePythonScript(PY_INTERCPTER_PATH);
-        String pyOutContex = executor.executePythonScript(PY_FILE_PATH);
+        //执行.py
+        String pyOutContex = executor.executePythonScriptByCode(codeScript);
         logger.info("\n .py 执行输出内容： " + pyOutContex);
 
-        //读.sql文件 方法样例
+        //读.sql
         String sqlContex = ReadSQLContext.readSQLFile(SQL_FILE_PAHT);
         logger.info("\n sql内容 : " + sqlContex);
     }

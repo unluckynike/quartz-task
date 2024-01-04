@@ -247,10 +247,10 @@ public class TaskController {
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value = "修改任务", notes = "传入任务id和taks对象， 修改该id下的taskName cron表达式或者time表达式 ")
+    @ApiOperation(value = "修改任务", notes = "传入任务id和taks对象， 修改该id下任务 cron或time ")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PutMapping("/{taskId}")
-    public Map<String, Object> rescheduleLoopTask(
+    public Map<String, Object> updateTask(
             @PathVariable Integer taskId,
             @RequestBody Task task) throws SchedulerException {
 
