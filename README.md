@@ -10,13 +10,13 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
 ## 配置文件
 
-`utils`包路径下的`PropertyLoader.java`
+`utils` 包路径下的 `PropertyLoader.java`
 
 ```java
-
+InputStream input = PropertyLoader.class.getClassLoader().getResourceAsStream("application.properties")
 ```
 
-`resource` 目录下的 `application.properties`文件
+`resource` 目录下的 `application.properties` 文件
 
 ```properties
 # application name
@@ -59,21 +59,37 @@ py.intercpter=
 
 `task`表设计
 
-|       列名        |   数据类型   |  长度 |        默认值        |            备注            |
-|:---------------:|:--------:|----:|:-----------------:|:------------------------:|
-|     task_id     |   int    | 255 |       自动递增        |         任务ID 主键          |
-|    task_name    | varchar  | 255 |       NULL        |           任务名称           |
-|      type       |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |
-| cron_expression | varchar  | 255 |       NULL        |     Cron表达式 针对循环多轮任务     |
-| time_expression | datetime |     |       NULL        |      时间表达式 针对单次定点任务      |
-|     remark      | varchar  | 255 | CURRENT_TIMESTAMP |           备注描述           |
-|   code_script   | longtext |     |                   |           脚本代码           |
-|     version     |   flot   |     |         1         |      脚本代码版本号 默认为1.0      |
-|      state      |   enum   |     |                   |     脚本代码状态 启用 暂停 停止      |
-|   is_activate   |   bit    |     |                   |         脚本代码是否激活         |
-|    is_delete    |   bit    |     |                   |           逻辑删除           |
-|   createtime    | datetime |     | CURRENT_TIMESTAMP |    创建时间 得到的是当前时间戳值        |
-|   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |
+![db.png](./info/img/db.png)
+
+[//]: # (|       列名        |   数据类型   |  长度 |        默认值        |            备注            |)
+
+[//]: # (|:---------------:|:--------:|----:|:-----------------:|:------------------------:|)
+
+[//]: # (|     task_id     |   int    | 255 |       自动递增        |         任务ID 主键          |)
+
+[//]: # (|    task_name    | varchar  | 255 |       NULL        |           任务名称           |)
+
+[//]: # (|      type       |   enum   |     |       NULL        | 枚举任务类型 CRON循环任务 TIME定时任务 |)
+
+[//]: # (| cron_expression | varchar  | 255 |       NULL        |     Cron表达式 针对循环多轮任务     |)
+
+[//]: # (| time_expression | datetime |     |       NULL        |      时间表达式 针对单次定点任务      |)
+
+[//]: # (|     remark      | varchar  | 255 | CURRENT_TIMESTAMP |           备注描述           |)
+
+[//]: # (|   code_script   | longtext |     |                   |           脚本代码           |)
+
+[//]: # (|     version     |   flot   |     |         1         |      脚本代码版本号 默认为1.0      |)
+
+[//]: # (|      state      |   enum   |     |                   |     脚本代码状态 启用 暂停 停止      |)
+
+[//]: # (|   is_activate   |   bit    |     |                   |         脚本代码是否激活         |)
+
+[//]: # (|    is_delete    |   bit    |     |                   |           逻辑删除           |)
+
+[//]: # (|   createtime    | datetime |     | CURRENT_TIMESTAMP |    创建时间 得到的是当前时间戳值        |)
+
+[//]: # (|   updatetime    | datetime |     | CURRENT_TIMESTAMP |    更新时间 修改时根据当前时间戳更新     |)
 
 `task`建表语句
 
@@ -264,12 +280,11 @@ ResponseBody
 - ✅增加三个字段
     - ✅任务描述（备注）；
     - ✅任务类型 枚举；
-    - ✅long text类型的code（前端富文本）🤔考虑一个问题 ~~如何判断他是python 还是sql~~ (sql后面也统一到py脚本里)
+    - ✅long text类型的code（前端富文本）考虑一个问题🤔 ~~如何判断他是python 还是sql~~ (sql后面也统一到py脚本里)
 - ✅大字段存py脚本，
 - 多任务列表 多任务执行
   - 脚本执行逻辑需改 每次从db中拿到code_script 并且执行的是is_activate为1的
   - 修改任务做整改 修改任务实则是新增一条需改后的数据 并且将被修改的那条is_activate为0 保证一组只有一个is_activate为1的数据
-  - 
 - 考虑任务的py版本 是否生效 版本记录
   - 开新接口 一组的版本代码查询 
 - ✅脚本代码状态 创建 启用 暂停 停止
@@ -279,7 +294,7 @@ ResponseBody
 - 查询数据库任务接口优化
   - 查询得到的结果是 生效的 一组只有一个is_activate为1的  逻辑删除为0的 
   - 考虑一些 启动 停止状态 数据
-- ✅标识符生成 时间戳解决identify 
+- ✅标识符生成 时间戳解决identify 考虑一个问题🤔 UUID太长了128位，时间戳规律性太强了 
   - 后续脚本代码管理进行 分组查询
 
 ## 待解决
