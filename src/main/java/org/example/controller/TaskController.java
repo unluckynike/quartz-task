@@ -41,7 +41,7 @@ public class TaskController {
 
     /**
      * 查看数据库任务 查到的是数据库中的任务
-     * 请求地址：127.0.0.1:8080/tasks
+     * @return
      */
     @ApiOperation(value = "查看数据库任务", notes = "查到的是存在数据库中的任务", hidden = false)
     @GetMapping()
@@ -69,7 +69,6 @@ public class TaskController {
 
     /**
      * 查看内存任务 查看内存中的任务
-     * 请求地址: 127.0.0.1:8080/memory
      *
      * @throws SchedulerException
      */
@@ -101,7 +100,6 @@ public class TaskController {
 
     /**
      * 查看内存任务 查看内存任务状态
-     * 请求地址: 127.0.0.1:8080/memoryState
      *
      * @throws SchedulerException
      */
@@ -162,8 +160,6 @@ public class TaskController {
 
     /**
      * 暂停任务 传入任务id
-     * 请求地址：127.0.0.1:8080/tasks/1/pause
-     * 请求参数：taskId
      *
      * @param taskId
      * @throws SchedulerException
@@ -187,14 +183,12 @@ public class TaskController {
     }
 
     /**
-     * 启动任务 传入任务id
-     * 请求地址：127.0.0.1:8080/tasks/1/resume
-     * 请求参数：taskId
+     * 启动任务
      *
      * @param taskId
      * @throws SchedulerException
      */
-    @ApiOperation(value = "重启任务", notes = "传入任务id 通过id重新启动内存中的任务")
+    @ApiOperation(value = "启动任务 重启任务", notes = "传入任务id 通过id重新启动内存中的任务")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PostMapping("/{taskId}/resume")
     public Map<String, Object> resumeTask(@PathVariable Integer taskId) throws SchedulerException {
@@ -213,9 +207,7 @@ public class TaskController {
     }
 
     /**
-     * 删除任务 传入任务id
-     * 请求地址: http://localhost:8080/tasks/1
-     * 请求参数：taskId
+     * 删除任务
      *
      * @param taskId
      * @throws SchedulerException
@@ -242,8 +234,7 @@ public class TaskController {
     }
 
     /**
-     * 修改任务 修改task表达式
-     * 请求地址：http://localhost:8080/tasks/6
+     * 修改任务
      *
      * @throws SchedulerException
      */
@@ -253,7 +244,6 @@ public class TaskController {
     public Map<String, Object> updateTask(
             @PathVariable Integer taskId,
             @RequestBody Task task) throws SchedulerException {
-
         logger.debug("修改任务 task：{} ", task.toString());
 
         Map<String, Object> returnMap = new HashMap<>();
@@ -288,13 +278,11 @@ public class TaskController {
         return returnMap;
     }
 
-    /******************************************************** 单次执行的任务 ****************************************************************/
-
     /**
-     * 创建单次定点任务并开启执行
+     * 创建单次时间任务
      *
      * @param task
-     * @throws SchedulerException json对象
+     * @throws SchedulerException
      */
     @ApiOperation(value = "创建并开启单次时间任务", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
     @PostMapping("/createOnceTimeTask")
@@ -308,7 +296,6 @@ public class TaskController {
         boolean successAdd = taskDataService.addOnceTimeTask(task);
 
         if (successAdd) {
-            //controller如果直接传task对象 拿不到taskId 还得需要过DB数据库
             taskService.createOnceTimeTask(taskDataService.getLastTask());
             returnMap.put("status", 1);
             returnMap.put("desc", "成功创建单次定时任务并开启执行");

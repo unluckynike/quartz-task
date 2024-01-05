@@ -46,7 +46,7 @@ public class Task {
     @ApiModelProperty("脚本代码状态")
     private CodeState state;
 
-    @ApiModelProperty("代码脚本是否激活")
+    @ApiModelProperty("脚本是否激活")
     private Byte isActivate;//Byte取值可以是 null、0 、1，可以通过判断 null 或具体的数值来表示布尔状态。
 
     @ApiModelProperty("删除")
@@ -56,7 +56,7 @@ public class Task {
     @ApiModelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createtime = null;
-    @ApiModelProperty("上次更新时间")
+    @ApiModelProperty("更新时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updatetime = null;
 
