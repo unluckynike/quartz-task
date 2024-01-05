@@ -9,7 +9,7 @@ import java.util.Date;
  * @Package org.example.utils
  * @Author hailin
  * @Date 2023/9/10
- * @Description : cron表达式工具类 合法性校验 无效性信息
+ * @Description : cron表达式校验 合法性校验 无效性信息
  */
 
 public class CronUtil {

@@ -14,6 +14,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.utils.DataUtil.isValidAndFormatTime;
+
 /*
  * @Package org.example.service
  * @Author hailin
@@ -32,8 +34,8 @@ public class TaskDataService {
     /**
      * 添加Cron任务信息到数据库 包含cron表达式合法性校验
      *
-     * @param task 传入一个Task对象
-     * @return boolean 成功true 失败false
+     * @param task
+     * @return boolean
      */
     public boolean addCronTask(Task task) {
         //检查cron表达式是否合法 合法则加入数据库
@@ -257,13 +259,13 @@ public class TaskDataService {
 
 
     /**
-     * 新增单次定点时间任务
+     * 新增单次定时任务 包含TIME判空
      * @param task
      * @return
      */
     public boolean addOnceTimeTask(Task task) {
-        //检查时间格式合不合法 成功加入数据库
-        if (true) {//先来一个true 后面加时间校验
+        //检查时间格式是否合法
+        if (task.getTimeExpression()!=null) {//前端已经做了控制时间格式
             //得到连接对象
             connection = new DatabaseConnector().connect();
             long identifyGroup = System.currentTimeMillis();
@@ -272,7 +274,7 @@ public class TaskDataService {
                 String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
-                //Timestamp 继承自 java.util.Date //getTime 返回自1970-1-1自现在的秒
+                //Timestamp 继承自 java.util.Date getTime 返回自1970-1-1自现在的秒
                 preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));
                 preparedStatement.setString(3, task.getType().name());
                 preparedStatement.setString(4, task.getRemark());
