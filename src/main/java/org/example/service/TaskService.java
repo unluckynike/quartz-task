@@ -40,7 +40,9 @@ public class TaskService {
         JobDetail jobDetail = JobBuilder //可以加description 用remake值
                 .newJob(SampleJob.class)
                 .withIdentity(task.getTaskId().toString())//给的是id 因为考虑到任务名字可能重复
-                .usingJobData("codeScript", task.getCodeScript()) // 往JobData里面放 获取传入的Py脚本内容
+                .usingJobData("type", task.getType().name())
+                .usingJobData("remark", task.getRemark())
+                .usingJobData("codeScript", task.getCodeScript()) // 往JobData里面放内容
                 .build();
         //创建触发器
         CronTrigger trigger = TriggerBuilder
@@ -176,8 +178,17 @@ public class TaskService {
                 Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
                 JobKey jobKey = trigger.getJobKey();
 
+                // 获取 JobDetail
+                JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+                // 获取 JobDetail 的 JobDataMap
+                JobDataMap jobDataMap = jobDetail.getJobDataMap();
+                // 获取任务关联的数据
+                String type = jobDataMap.getString("type");
+                String remark = jobDataMap.getString("remark");
+
+
                 // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成） 考虑这里与db交互查一次？
-                tasklist.add("任务id: " + jobKey.getName() + " 在内置Group任务组 " + jobKey.getGroup() + " 的状态是 " + triggerState);
+                tasklist.add("任务id:" + jobKey.getName() + " 任务类型:" + type + " 在内置Group任务组:" + jobKey.getGroup() + " 状态:" + triggerState + " 任务描述:" + remark);
             }
         }
 
@@ -237,6 +248,9 @@ public class TaskService {
         JobDetail jobDetail = JobBuilder
                 .newJob(SampleJob.class)
                 .withIdentity(task.getTaskId().toString())
+                .usingJobData("type", task.getType().name())// 往JobData里面放内容
+                .usingJobData("remark", task.getRemark())
+                .usingJobData("codeScript", task.getCodeScript())
                 .build();
 
         // 创建一个Trigger实例，指定任务在特定时间执行一次

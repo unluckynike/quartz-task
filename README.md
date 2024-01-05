@@ -13,7 +13,7 @@ swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 `utils` 包路径下的 `PropertyLoader.java`
 
 ```java
-InputStream input = PropertyLoader.class.getClassLoader().getResourceAsStream("application.properties")
+InputStream input=PropertyLoader.class.getClassLoader().getResourceAsStream("application.properties")
 ```
 
 `resource` 目录下的 `application.properties` 文件
@@ -95,31 +95,34 @@ py.intercpter=
 
 ```sql
 SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+SET
+FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- Table structure for tasks
 -- ----------------------------
 DROP TABLE IF EXISTS `tasks`;
-CREATE TABLE `tasks` (
-                       `task_id` int NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
-                       `task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_cs_0900_ai_ci DEFAULT NULL COMMENT '任务名称',
-                       `type` enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
-                       `cron_expression` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'CRON表达式 针对多轮循环任务',
-                       `time_expression` datetime DEFAULT NULL COMMENT 'TIME表达式 针对单次定点任务',
-                       `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '任务备注描述',
-                       `code_script` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '脚本代码',
-                       `identify_group` bigint unsigned DEFAULT NULL COMMENT '任务组标识符',
-                       `version` float unsigned DEFAULT '1' COMMENT '脚本代码版本号 默认值1',
-                       `state` enum('ENABLED','PAUSED','STOPPED','CREATED') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'CREATED' COMMENT '状态 启用 暂停 停止 创建 默认值创建',
-                       `is_activate` bit(1) DEFAULT b'0' COMMENT '是否激活 默认值0',
-                       `is_delete` bit(1) DEFAULT b'0' COMMENT '是否删除 默认值0',
-                       `createtime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                       `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                       PRIMARY KEY (`task_id`) USING BTREE
+CREATE TABLE `tasks`
+(
+    `task_id`         int NOT NULL AUTO_INCREMENT COMMENT '任务id 主键 自动递增',
+    `task_name`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_cs_0900_ai_ci DEFAULT NULL COMMENT '任务名称',
+    `type`            enum('CRON','TIME') DEFAULT NULL COMMENT '任务类型 CRON循环任务 TIME定时任务',
+    `cron_expression` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci    DEFAULT NULL COMMENT 'CRON表达式 针对多轮循环任务',
+    `time_expression` datetime                                                         DEFAULT NULL COMMENT 'TIME表达式 针对单次定点任务',
+    `remark`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci    DEFAULT NULL COMMENT '任务备注描述',
+    `code_script`     longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '脚本代码',
+    `identify_group`  bigint unsigned DEFAULT NULL COMMENT '任务组标识符',
+    `version`         float unsigned DEFAULT '1' COMMENT '脚本代码版本号 默认值1',
+    `state`           enum('ENABLED','PAUSED','STOPPED','CREATED') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'CREATED' COMMENT '状态 启用 暂停 停止 创建 默认值创建',
+    `is_activate`     bit(1)                                                           DEFAULT b'0' COMMENT '是否激活 默认值0',
+    `is_delete`       bit(1)                                                           DEFAULT b'0' COMMENT '是否删除 默认值0',
+    `createtime`      datetime                                                         DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updatetime`      datetime                                                         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`task_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-SET FOREIGN_KEY_CHECKS = 1;
+SET
+FOREIGN_KEY_CHECKS = 1;
 ```
 
 ### 功能
@@ -259,18 +262,71 @@ ResponseBody
     
     2023-09-19 17:41:00
 
+### 简单py
+
+```python
+print("Hello World!")
+```
+
+```python
+a = 5
+b = 10
+sum_result = a + b
+print("Sum:", sum_result)
+```
+
+```python
+number = 15
+if number > 10:
+    print("Number is greater than 10.")
+else:
+    print("Number is not greater than 10.")
+```
+
+```python
+fruits = ["apple", "orange", "banana"]
+for fruit in fruits:
+    print(fruit)
+```
+
+```python
+def greet(name):
+    print(f"Hello, {name}!")
+
+greet("Alice")
+```
+
+```python
+sentence = "Python is fun!"
+print(sentence.upper())
+print(sentence.replace("fun", "awesome"))
+```
+
+```python
+numbers = [1, 2, 3, 4, 5]
+squared_numbers = [num ** 2 for num in numbers]
+print("Squared Numbers:", squared_numbers)
+```
+
+```python
+from datetime import datetime
+
+current_time = datetime.now()
+print("Current Time:", current_time)
+```
+
 ## 进度 🧑‍💻
 
 > 根据开发进度和需求变化进行修改
 
-- ✅task任务创建时间 更新时间 
-- ✅补上代码注释 
+- ✅task任务创建时间 更新时间
+- ✅补上代码注释
 - ✅增加cron表达式合法性校验（添加和修改的时候需要校验合法性）
 - ✅集成swagger在线接口文档
-- ✅完善api在线接口文档 
+- ✅完善api在线接口文档
 - ✅查内存任务信息 （可优化拆分成详细信息查询 和 分别给出任务状态总数的任务统计信息）
 - ✅单次定点时间任务执行（只跑一次任务就结束）
-- ✅单次定点时间合法性校验 
+- ✅单次定点时间合法性校验
 - ~~传入任务对象 任务不触发 任务信息存入数据库 存入内存或者 存入数据库不上内存 触发~~ （前端控制了创建任务都先挂起暂停）❌
 - ~~从db中拿已有任务上内存触发~~ ❌（运行起来是一致的）
 - ~~譬如 我只是需要修改db中的任务 不让他修改了就执行~~ ❌（同上）
@@ -280,33 +336,36 @@ ResponseBody
     - ✅long text类型的code（前端富文本）考虑一个问题🤔 ~~如何判断他是python 还是sql~~ (sql后面也统一到py脚本里)
 - ✅大字段存py脚本，
 - 多任务列表 多任务执行
-  - ✅脚本执行逻辑需改 每次从db中拿到code_script 
-  - 任务执行 执行的是is_activate为1的
-  - 修改任务做整改 修改任务实则是新增一条需改后的数据 
-  - 修改任务 是将被修改的那条is_activate置为0 且要保证一组只有一个is_activate为1的数据
+    - ✅脚本执行逻辑需改 每次从db中拿到code_script
+    - 任务执行 执行的是is_activate为1的
+    - 修改任务做整改 修改任务实则是新增一条需改后的数据
+    - 修改任务 是将被修改的那条is_activate置为0 且要保证一组只有一个is_activate为1的数据
 - 考虑任务的py版本 是否生效 版本记录
-  - 开新接口 一组的版本代码查询 
+    - 开新接口 一组的版本代码查询
 - ✅脚本代码状态 创建 启用 暂停 停止
 - 统一py脚本流程逻辑 脚本输出信息 （后续出统一模版）
-- 切换8.0版本数据库 ✅
+- ✅切换8.0版本数据库 
 - 数据库表物理删除改为逻辑删除 ✅ 考虑一个问题🤔 是否需要设置删除撤销 这里内存调度任务如何做 db中从id拿来直接重新创建 失火🔥
 - 查询数据库任务接口优化
-  - 查询得到的结果是 生效的 一组只有一个is_activate为1的  逻辑删除为0的 
-  - 考虑一些 启动 停止状态 数据
-- ✅标识符生成 时间戳解决identify 考虑一个问题🤔 UUID太长了128位，时间戳规律性太强了 
-  - 后续脚本代码管理进行 分组查询
+    - 查询得到的结果是 生效的 一组只有一个is_activate为1的 逻辑删除为0的
+    - 考虑一些 启动 停止状态 数据
+- ✅标识符生成 时间戳解决identify 考虑一个问题🤔 UUID太长了128位，时间戳规律性太强了
+    - 后续脚本代码管理进行 分组查询
 
 ## 待解决
 
-- 查内存任务 🔧只能统计到cron循环任务，单次定点的时间任务查不到 （可查到 但是无法区分出来时间任务和循环任务）
+- 查内存任务 ✅只能统计到cron循环任务，单次定点的时间任务查不到 
+  - ✅可查到 且可以区分出来时间任务和循环任务
+  - ✅可查到 且可以查到任务描述
+  - ✅可查到 且可以查到任务状态
 - 删除任务 ~~考虑一种需要补充的情况 删除的时候 db中有 但是他并不在内存中~~ (使用应是一致统一的)
-- 修改任务 ✅需要增加修改time表达式 
+- 修改任务 ✅需要增加修改time表达式
 - 修改任务 传的id不存在不报错
-- 配置文件 ✅集成抽取配置文件的值，统一写到`yml`或者`properties`文件中 
+- 配置文件 ✅集成抽取配置文件的值，统一写到`yml`或者`properties`文件中
 
 ## 集成问题
 
-多任务功能做了之后留意这个问题 `ExecutePythonScript` 有时会脚本错误 
+多任务功能做了之后留意这个问题 `ExecutePythonScript` 有时会脚本错误
 
 ## 一些思考🤔️
 

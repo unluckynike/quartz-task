@@ -79,7 +79,7 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
 
         try {
-            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,code_script FROM tasks ORDER BY task_id DESC LIMIT 1";
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script FROM tasks ORDER BY task_id DESC LIMIT 1";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet result = preparedStatement.executeQuery();
             if (result.next()) {
@@ -88,6 +88,7 @@ public class TaskDataService {
                 task.setTaskType(TaskType.valueOf(result.getString("type")));
                 task.setCronExpression(result.getString("cron_expression"));
                 task.setTimeExpression(result.getTimestamp("time_expression"));
+                task.setRemark(result.getString("remark"));
                 task.setCodeScript(result.getString("code_script"));
             }
             //关闭结果集和预编译语句。

@@ -43,7 +43,7 @@ public class Task {
     @ApiModelProperty("代码脚本版本")
     private float version;
 
-    @ApiModelProperty("代码脚本状态")
+    @ApiModelProperty("脚本代码状态")
     private CodeState state;
 
     @ApiModelProperty("代码脚本是否激活")
