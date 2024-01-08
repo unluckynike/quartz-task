@@ -37,7 +37,6 @@ public class TaskController {
     @Autowired
     private TaskDataService taskDataService;
 
-    /******************************************************** 循环执行的任务 cron ****************************************************************/
 
     /**
      * 查看数据库任务 查到的是数据库中的任务
@@ -129,12 +128,12 @@ public class TaskController {
     }
 
     /**
-     * 创建并开启任务 自动触发 传入任务信息
+     * 创建开启多次循环任务
      *
      * @param task
      * @throws SchedulerException
      */
-    @ApiOperation(value = "创建并开启多次循环任务", notes = "传入cron任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @ApiOperation(value = "创建开启多次循环任务", notes = "传入cron任务对象 任务触发 任务信息存入数据库 存入内存")
     @PostMapping("/createLoopTask")
     public Map<String, Object> createCronTask(@RequestBody Task task) throws SchedulerException {
         logger.info("task infor: " + task.toString());
@@ -146,8 +145,11 @@ public class TaskController {
         boolean successAdd = taskDataService.addCronTask(task);
 
         if (successAdd) {
-            //执行的时候 查到最后一条（也就是最新添加的）任务执行
-            taskService.createLoopTask(taskDataService.getLastTask());
+            //执行的时候 查到最新添加的任务执行
+            Task lastTask = taskDataService.getLastTask();
+            taskService.createLoopTask(lastTask);
+            taskService.pauseTask(lastTask.getTaskId());
+            taskDataService.codeScriptStatePause(lastTask.getTaskId());
             returnMap.put("status", 1);
             returnMap.put("desc", "成功创建并开启多次循环任务");
         }
@@ -155,8 +157,34 @@ public class TaskController {
         return returnMap;
     }
 
-//    @ApiOperation(value="创建任务", notes="传入任务对象 任务不触发 任务信息存入数据库 存入内存")
-//    @PostMapping
+    /**
+     * 创建单次时间任务
+     *
+     * @param task
+     * @throws SchedulerException
+     */
+    @ApiOperation(value = "创建开启单次时间任务", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
+    @PostMapping("/createOnceTimeTask")
+    public Map<String, Object> createOnceTimeTask(@RequestBody Task task) throws SchedulerException {
+        logger.info("task infor : " + task.toString());
+
+        Map<String, Object> returnMap = new HashMap<>();
+        returnMap.put("status", 0);
+        returnMap.put("desc", "创建单次定时任务并开启执行失败");
+        //单次任务 加入数据库
+        boolean successAdd = taskDataService.addOnceTimeTask(task);
+
+        if (successAdd) {
+            Task lastTask = taskDataService.getLastTask();
+            taskService.createOnceTimeTask(lastTask);
+            taskService.pauseTask(lastTask.getTaskId());
+            taskDataService.codeScriptStatePause(lastTask.getTaskId());
+            returnMap.put("status", 1);
+            returnMap.put("desc", "成功创建单次定时任务并开启执行");
+        }
+        return returnMap;
+    }
+
 
     /**
      * 暂停任务 传入任务id
@@ -173,6 +201,7 @@ public class TaskController {
 
         boolean isPause = taskService.pauseTask(taskId);
         if (isPause) {
+            taskDataService.codeScriptStatePause(taskId);
             returnMap.put("status", 1);
             returnMap.put("desc", "成功暂停任务");
         } else {
@@ -197,6 +226,7 @@ public class TaskController {
 
         boolean isResume = taskService.resumeTask(taskId);
         if (isResume) {
+            taskDataService.codeScriptStateEnable(taskId);
             returnMap.put("status", 1);
             returnMap.put("desc", "成功重启任务");
         } else {
@@ -218,18 +248,17 @@ public class TaskController {
     public Map<String, Object> deleteTask(@PathVariable("taskId") Integer taskId) throws SchedulerException {
         logger.info("删除任务 id：" + taskId);
         Map<String, Object> returnMap = new HashMap<>();
+        returnMap.put("status", 0);
+        returnMap.put("desc", "删除任务失败");
 
-        int i = taskDataService.deleteTask(taskId);
-        //考虑一种需要补充的情况 删除的时候 db中有 但是他并不在内存中
         boolean isDelete = taskService.deleteTask(taskId);
-
-        returnMap.put("status", i);
-        returnMap.put("desc", "删除任务成功");
-
-        if (i == 0) {
-            returnMap.put("status", i);
-            returnMap.put("desc", "删除任务失败");
+        if (isDelete){
+            taskDataService.deleteTask(taskId);
+            taskDataService.codeScriptStateStopped(taskId);
+            returnMap.put("status", 1);
+            returnMap.put("desc", "删除任务成功");
         }
+
         return returnMap;
     }
 
@@ -244,7 +273,7 @@ public class TaskController {
     public Map<String, Object> updateTask(
             @PathVariable Integer taskId,
             @RequestBody Task task) throws SchedulerException {
-        logger.debug("修改任务 task：{} ", task.toString());
+        logger.info("修改任务 task：{} ", task.toString());
 
         Map<String, Object> returnMap = new HashMap<>();
         returnMap.put("status", 0);
@@ -278,28 +307,5 @@ public class TaskController {
         return returnMap;
     }
 
-    /**
-     * 创建单次时间任务
-     *
-     * @param task
-     * @throws SchedulerException
-     */
-    @ApiOperation(value = "创建并开启单次时间任务", notes = "传入任务对象 任务自动触发 任务信息存入数据库 存入内存")
-    @PostMapping("/createOnceTimeTask")
-    public Map<String, Object> createOnceTimeTask(@RequestBody Task task) throws SchedulerException {
-        logger.info("task infor : " + task.toString());
 
-        Map<String, Object> returnMap = new HashMap<>();  //返回参数
-        returnMap.put("status", 0);
-        returnMap.put("desc", "创建单次定时任务并开启执行失败");
-        //单次任务 加入数据库
-        boolean successAdd = taskDataService.addOnceTimeTask(task);
-
-        if (successAdd) {
-            taskService.createOnceTimeTask(taskDataService.getLastTask());
-            returnMap.put("status", 1);
-            returnMap.put("desc", "成功创建单次定时任务并开启执行");
-        }
-        return returnMap;
-    }
 }

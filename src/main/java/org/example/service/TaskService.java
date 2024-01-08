@@ -27,10 +27,9 @@ public class TaskService {
     @Autowired
     private Scheduler scheduler;
 
-    /******************************************************** 循环多次执行的任务 cron ****************************************************************/
 
     /**
-     * 创建循环多轮任务并调度执行（自动触发）
+     * 创建多次循环任务
      *
      * @param task
      * @throws SchedulerException
@@ -51,19 +50,6 @@ public class TaskService {
                 //得到cron表达式
                 .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression())).build();
         scheduler.scheduleJob(jobDetail, trigger);
-    }
-
-    /**
-     * 执行在内存中暂停的任务 （手动触发） 任务已经在内存中
-     *
-     * @param taskId
-     * @throws SchedulerException
-     */
-    public void executeTask(Integer taskId) throws SchedulerException {
-        // 根据任务的ID获取任务的JobKey
-        JobKey jobKey = new JobKey(taskId.toString());//给的是id 因为考虑到任务名字可能重复
-        // 触发任务执行
-        scheduler.triggerJob(jobKey);
     }
 
     /**
@@ -124,7 +110,9 @@ public class TaskService {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskId + "Trigger");
         //构建一个新的触发器，使用新的Cron表达式
         Trigger newTrigger = TriggerBuilder.newTrigger()// 设置触发器的唯一标识
-                .withIdentity(triggerKey).withSchedule(CronScheduleBuilder.cronSchedule(newCronExpression)).build();
+                .withIdentity(triggerKey)
+                .withSchedule(CronScheduleBuilder.cronSchedule(newCronExpression))
+                .build();
         // 调度器重新调度任务，使用新的触发器来替换原有的触发器
         try {
             scheduler.rescheduleJob(triggerKey, newTrigger);
@@ -188,7 +176,7 @@ public class TaskService {
 
 
                 // 吐出信息 NORMAL（正常）、PAUSED（暂停）、COMPLETE（已完成） 考虑这里与db交互查一次？
-                tasklist.add("任务id:" + jobKey.getName() + " 任务类型:" + type + " 在内置Group任务组:" + jobKey.getGroup() + " 状态:" + triggerState + " 任务描述:" + remark);
+                tasklist.add("任务id:" + jobKey.getName() + " 任务类型:" + type + " 任务在内置Group任务组:" + jobKey.getGroup() + " 任务状态:" + triggerState + " 任务描述:" + remark);
             }
         }
 
@@ -228,7 +216,7 @@ public class TaskService {
 
         // 吐出信息 打印内存任务状态 统计信息
         for (Map.Entry<Trigger.TriggerState, Integer> entry : statusCountMap.entrySet()) {
-            logger.info("状态 " + entry.getKey() + ": " + entry.getValue() + " 个任务");
+            logger.info("任务状态 " + entry.getKey() + ": " + entry.getValue() + " 个任务");
         }
 
         //内存中没有任务
@@ -239,10 +227,7 @@ public class TaskService {
 
     }
 
-
-    /******************************************************** 单次定时执行的任务 ****************************************************************/
-
-    //创建单次任务并执行 自动触发
+    //创建单次时间任务
     public void createOnceTimeTask(Task task) throws SchedulerException {
         // 创建一个JobDetail实例，并与任务类关联
         JobDetail jobDetail = JobBuilder

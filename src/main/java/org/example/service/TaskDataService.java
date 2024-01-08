@@ -70,39 +70,6 @@ public class TaskDataService {
         }
     }
 
-    /**
-     * 查到最后一条（最新添加）任务 这个用于创建任务之后调用 查到数据库最后一条（新插入的）数据 放进内存里触发任务
-     *
-     * @return Task 返回在数据库中查到的task
-     */
-    public Task getLastTask() {
-        Task task = new Task();
-
-        connection = new DatabaseConnector().connect();
-
-        try {
-            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script FROM tasks ORDER BY task_id DESC LIMIT 1";
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            ResultSet result = preparedStatement.executeQuery();
-            if (result.next()) {
-                task.setTaskId(result.getInt("task_id"));
-                task.setTaskName(result.getString("task_name"));
-                task.setTaskType(TaskType.valueOf(result.getString("type")));
-                task.setCronExpression(result.getString("cron_expression"));
-                task.setTimeExpression(result.getTimestamp("time_expression"));
-                task.setRemark(result.getString("remark"));
-                task.setCodeScript(result.getString("code_script"));
-            }
-            //关闭结果集和预编译语句。
-            result.close();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            new DatabaseConnector().closeConnection(connection);
-        }
-        return task;
-    }
 
     /**
      * 更新数据库task表里Cron任务数据
@@ -213,6 +180,82 @@ public class TaskDataService {
         return i;
     }
 
+    /**
+     * 查到最后一条（最新添加）任务 这个用于创建任务之后调用 查到数据库最后一条（新插入的）数据 放进内存里触发任务
+     *
+     * @return Task 返回在数据库中查到的task
+     */
+    public Task getLastTask() {
+        connection = new DatabaseConnector().connect();
+        Task task = new Task();
+
+        try {
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script FROM tasks ORDER BY task_id DESC LIMIT 1";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet result = preparedStatement.executeQuery();
+            if (result.next()) {
+                task.setTaskId(result.getInt("task_id"));
+                task.setTaskName(result.getString("task_name"));
+                task.setTaskType(TaskType.valueOf(result.getString("type")));
+                task.setCronExpression(result.getString("cron_expression"));
+                task.setTimeExpression(result.getTimestamp("time_expression"));
+                task.setRemark(result.getString("remark"));
+                task.setCodeScript(result.getString("code_script"));
+            }
+            //关闭结果集和预编译语句。
+            result.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return task;
+    }
+
+
+    /**
+     * 根据id查询任务
+     *
+     * @param taskId
+     * @return
+     */
+    public Task getTaskById(Integer taskId) {
+        connection = new DatabaseConnector().connect();
+        Task task = new Task();
+        task.setTaskId(taskId);
+        try {
+            String sqlQuery = "SELECT task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=? ";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            //封装出task对象
+            while (resultSet.next()) {
+                task.setTaskName(resultSet.getString("task_name"));
+                task.setType(TaskType.valueOf(resultSet.getString("type")));
+                task.setCronExpression(resultSet.getString("cron_expression"));
+                task.setTimeExpression(resultSet.getDate("time_expression"));
+                task.setRemark(resultSet.getString("remark"));
+                task.setCodeScript(resultSet.getString("code_script"));
+                task.setIdentifyGroup(resultSet.getLong("identify_group"));
+                task.setVersion(resultSet.getFloat("version"));
+                task.setState(CodeState.valueOf(resultSet.getString("state")));
+                task.setIsActivate(resultSet.getByte("is_activate"));
+                task.setIsDelete(resultSet.getByte("is_delete"));
+                task.setCreatetime(resultSet.getDate("createtime"));
+                task.setUpdatetime(resultSet.getDate("updatetime"));
+            }
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+
+        return task;
+    }
 
     /**
      * 查询数据库中的全部task
@@ -260,12 +303,13 @@ public class TaskDataService {
 
     /**
      * 新增单次定时任务 包含TIME判空
+     *
      * @param task
      * @return
      */
     public boolean addOnceTimeTask(Task task) {
         //检查时间格式是否合法
-        if (task.getTimeExpression()!=null) {//前端已经做了控制时间格式
+        if (task.getTimeExpression() != null) {//前端已经做了控制时间格式
             //得到连接对象
             connection = new DatabaseConnector().connect();
             long identifyGroup = System.currentTimeMillis();
@@ -300,10 +344,11 @@ public class TaskDataService {
 
     /**
      * 根据taskId获得代码脚本
+     *
      * @param taskId
      * @return
      */
-    public String getCodeScriptById(Integer taskId){
+    public String getCodeScriptById(Integer taskId) {
         String codeScript = null;
 
         try (Connection connection = new DatabaseConnector().connect()) {
@@ -327,6 +372,79 @@ public class TaskDataService {
         return codeScript;
     }
 
+    /**
+     * 修改脚本状态为暂停
+     *
+     * @param taskId
+     * @return
+     */
+    public int codeScriptStatePause(Integer taskId) {
+        connection = new DatabaseConnector().connect();
+
+        int i = 0;
+        try {
+            String sqlQuery = "UPDATE tasks SET state='PAUSED' WHERE task_id =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskId);
+            i = preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+
+        return i;
+    }
+
+
+    /**
+     * 修改脚本状态为启用
+     * @param taskId
+     * @return
+     */
+    public int codeScriptStateEnable(Integer taskId) {
+        connection = new DatabaseConnector().connect();
+
+        int i = 0;
+        try {
+            String sqlQuery = "UPDATE tasks SET state='ENABLED' WHERE task_id =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskId);
+            i = preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+
+        return i;
+    }
+
+    /**
+     * 修改脚本状态为停止
+     * @param taskId
+     * @return
+     */
+    public int codeScriptStateStopped(Integer taskId) {
+        connection = new DatabaseConnector().connect();
+
+        int i = 0;
+        try {
+            String sqlQuery = "UPDATE tasks SET state='STOPPED' WHERE task_id =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskId);
+            i = preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+
+        return i;
+    }
 
 
 }
