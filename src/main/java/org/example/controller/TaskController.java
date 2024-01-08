@@ -71,7 +71,7 @@ public class TaskController {
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value = "查看内存任务", notes = "查看到的是当前内存中的任务")
+    @ApiOperation(value = "查看内存任务信息", notes = "查看到的是当前内存中的任务")
     @GetMapping("/memory")
     public Map<String, Object> queryTaskInMemory() throws SchedulerException {
 

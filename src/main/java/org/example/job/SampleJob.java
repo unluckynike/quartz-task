@@ -38,13 +38,9 @@ public class SampleJob implements Job {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         logger.info(format.format(now) + " 执行job...");
 
-        JobDataMap jobDataMap = context.getMergedJobDataMap();
+        JobDataMap jobDataMap = context.getMergedJobDataMap();//context.getJobDetail().getJobDataMap();
         String codeScript = jobDataMap.getString("codeScript");
 
-//        // 获取任务执行时的数据上下文
-//        JobDataMap jobDataMapp = context.getJobDetail().getJobDataMap();
-//        // 获取传递给任务的数据，这里是获取名为 "codeScript" 的数据
-//        String codeScriptt = jobDataMap.getString("codeScript");
 
         //执行.py
         String pyOutContex = executor.executePythonScriptByCode(codeScript);

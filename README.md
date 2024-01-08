@@ -4,7 +4,7 @@
 
 swagger2 ： http://127.0.0.1:8080/swagger-ui.html
 
-在线接口文档： ~~http://121.37.188.176:8080/swagger-ui.html~~
+在线接口文档：
 
 语雀在线接口文档：
 
@@ -158,35 +158,50 @@ URL:http://localhost:8080/tasks/createLoopTask
 Request:POST
 RequestBody
 {
-  "taskName": "任务111",
-  "cronExpression": "0 0 1 ? * L",
+  "taskName": "计算15",
   "taskType": "CRON",
-  "remark": "任务111， 每周星期天凌晨1点实行一次"
-}
-ResponseBody
-{
-  "status": 1.0,
-  "desc": "成功创建并开启多次循环任务"
+  "cronExpression": "0 */1 * * * ?",
+  "remark": "每分钟计算一次5+10的和",
+  "codeScript": "a = 5\nb = 10\nsum_result = a + b\nprint(\"Sum:\", sum_result)\n"
 }
 ```
 
-创建开启单次定时任务
+创建开启单次时间任务
 
 ```text
 URL:http://localhost:8080/tasks/createOnceTimeTask
 Request:POST
 RequestBody
 {
-  "taskName": "定时任务1",
-  "timeExpression": "2023-11-30 14:35:38",
+  "taskName": "打印时间任务",
   "taskType": "TIME",
-  "remark": "测试定时任务"
+  "timeExpression": "2024-01-15 21:47:37",
+  "remark": "显示时间",
+  "codeScript": "from datetime import datetime\n\ncurrent_time = datetime.now()\nprint(\"Current Time:\", current_time)\n"
 }
-ResponseBody
-{
-  "status": 1.0,
-  "desc": "成功创建单次定时任务并开启执行"
-}
+```
+
+删除任务
+
+```text
+Request:DELETE
+Query
+taskId:88
+```
+
+暂停任务
+
+```text
+Request:POST
+Query
+taskId:88
+```
+
+启动任务 重启任务
+```text
+Request:POST
+Query
+taskId:88
 ```
 
 修改任务 分别针对cron和time
@@ -329,7 +344,7 @@ current_time = datetime.now()
 print("Current Time:", current_time)
 ```
 
-## 🧑‍💻 进度 
+## 🧑‍💻 进度
 
 > 根据开发进度和需求变化进行修改
 
@@ -364,6 +379,7 @@ print("Current Time:", current_time)
 - 查询数据库任务接口优化
     - 查询得到的结果是 生效的 一组只有一个is_activate为1的 逻辑删除为0的
     - 考虑一些 启动 停止状态 数据
+    - 考虑一个问题🤔 删除控制 只有代码脚本状态为停止 或者 任务状态为暂停的才可以被删除
 - ✅标识符生成 时间戳解决identify 考虑一个问题🤔 UUID太长了128位，时间戳规律性太强了
     - 后续脚本代码管理进行 分组查询
 
