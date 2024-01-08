@@ -70,6 +70,60 @@ public class TaskDataService {
         }
     }
 
+    /**
+     * 修改任务
+     * @param task
+     */
+    public void updateTask(Task task) {
+        connection = new DatabaseConnector().connect();
+        if (task.getCronExpression() != null && !task.getCronExpression().isEmpty()) {
+            //cron
+            if (CronUtil.isValid(task.getCronExpression())) {
+                try {
+                    String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group,version) VALUES (?, ?, ?, ?,?,?,?)";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+                    preparedStatement.setString(1, task.getTaskName());
+                    preparedStatement.setString(2, task.getCronExpression());
+                    preparedStatement.setString(3, task.getType().name());
+                    preparedStatement.setString(4, task.getRemark());
+                    preparedStatement.setString(5, task.getCodeScript());
+                    preparedStatement.setLong(6, task.getIdentifyGroup());
+                    preparedStatement.setFloat(7, task.getVersion() + 1);
+                    preparedStatement.executeUpdate();
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    //关闭数据库连接
+                    new DatabaseConnector().closeConnection(connection);
+                }
+            } else {
+                //不执行修改 输出错误cron日志
+                logger.error("无效的Cron表达式，任务未添加到数据库: " + CronUtil.getInvalidMessage(task.getCronExpression()));
+            }
+
+            //time
+        } else {
+            //time
+            try {
+                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group,version) VALUES (?, ?, ?, ?,?,?,?)";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+                preparedStatement.setString(1, task.getTaskName());
+                preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));//getTime 返回自1970-1-1自现在的秒
+                preparedStatement.setString(3, task.getType().name());
+                preparedStatement.setString(4, task.getRemark());
+                preparedStatement.setString(5, task.getCodeScript());
+                preparedStatement.setLong(6, task.getIdentifyGroup());
+                preparedStatement.setFloat(7, task.getVersion() + 1);
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                new DatabaseConnector().closeConnection(connection);
+            }
+        }
+    }
 
     /**
      * 更新数据库task表里Cron任务数据
@@ -83,7 +137,7 @@ public class TaskDataService {
             //cron表达式合法再打开数据库连接
             connection = new DatabaseConnector().connect();
             try {
-                String sqlQuery = "UPDATE tasks SET task_name = ?, cron_expression = ?, type = ?, remark = ? WHERE task_id = ?";
+                String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setString(2, task.getCronExpression());
@@ -225,7 +279,7 @@ public class TaskDataService {
         Task task = new Task();
         task.setTaskId(taskId);
         try {
-            String sqlQuery = "SELECT task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=? ";
+            String sqlQuery = "SELECT task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete FROM tasks WHERE task_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, taskId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -243,8 +297,6 @@ public class TaskDataService {
                 task.setState(CodeState.valueOf(resultSet.getString("state")));
                 task.setIsActivate(resultSet.getByte("is_activate"));
                 task.setIsDelete(resultSet.getByte("is_delete"));
-                task.setCreatetime(resultSet.getDate("createtime"));
-                task.setUpdatetime(resultSet.getDate("updatetime"));
             }
             resultSet.close();
             preparedStatement.close();
@@ -266,7 +318,7 @@ public class TaskDataService {
         connection = new DatabaseConnector().connect();
         List<Task> tasks = new ArrayList<>();
         try {
-            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=0 ";
+            String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=0";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -400,6 +452,7 @@ public class TaskDataService {
 
     /**
      * 修改脚本状态为启用
+     *
      * @param taskId
      * @return
      */
@@ -424,6 +477,7 @@ public class TaskDataService {
 
     /**
      * 修改脚本状态为停止
+     *
      * @param taskId
      * @return
      */

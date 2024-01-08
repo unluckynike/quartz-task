@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Date;
+import java.util.Objects;
 
 /*
  * @Package org.example.controller
@@ -40,6 +41,7 @@ public class TaskController {
 
     /**
      * 查看数据库任务 查到的是数据库中的任务
+     *
      * @return
      */
     @ApiOperation(value = "查看数据库任务", notes = "查到的是存在数据库中的任务", hidden = false)
@@ -252,7 +254,7 @@ public class TaskController {
         returnMap.put("desc", "删除任务失败");
 
         boolean isDelete = taskService.deleteTask(taskId);
-        if (isDelete){
+        if (isDelete) {
             taskDataService.deleteTask(taskId);
             taskDataService.codeScriptStateStopped(taskId);
             returnMap.put("status", 1);
@@ -267,45 +269,71 @@ public class TaskController {
      *
      * @throws SchedulerException
      */
-    @ApiOperation(value = "修改任务", notes = "传入任务id和taks对象， 修改该id下任务 cron或time ")
+    @ApiOperation(value = "修改任务", notes = "传入任务id和tak对象")
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PutMapping("/{taskId}")
     public Map<String, Object> updateTask(
-            @PathVariable Integer taskId,
-            @RequestBody Task task) throws SchedulerException {
-        logger.info("修改任务 task：{} ", task.toString());
+            @RequestBody Task updatedTask) throws SchedulerException {
+        logger.info("修改任务 task：{} ", updatedTask.toString());
 
         Map<String, Object> returnMap = new HashMap<>();
         returnMap.put("status", 0);
         returnMap.put("desc", "修改任务失败");
+        // 获取数据库中的旧值
+        Task oldTask = taskDataService.getTaskById(updatedTask.getTaskId());
 
-        boolean successUpdate = false;
-        Task newTask = null;
-//        cron
-        if (taskId != null && task.getCronExpression() != null && !task.getCronExpression().isEmpty()) {
-            newTask = new Task(taskId, task.getTaskName(), task.getCronExpression(),task.getType(),task.getRemark());
-            successUpdate = taskDataService.updateCronTask(newTask);
-            //成功更新 重启任务
-            if (successUpdate) {
-                taskService.rescheduleCronTask(taskId, task.getCronExpression());
-                returnMap.put("status", 1);
-                returnMap.put("desc", "成功修改循环任务");
-            }
+
+        // 检查每个属性是否有变化，有变化则更新
+        if (!Objects.equals(updatedTask.getTaskName(), oldTask.getTaskName())) {
+            oldTask.setTaskName(updatedTask.getTaskName());
         }
-//       time
-        if (taskId != null && task.getTimeExpression() != null && !task.getTimeExpression().equals(new Date(0))) {
-            newTask = new Task(taskId, task.getTaskName(), task.getTimeExpression(),task.getType(),task.getRemark());
-            successUpdate = taskDataService.updateOnceTask(newTask);
-            //成功更新 重启任务
-            if (successUpdate) {
-                taskService.rescheduleOnceTask(taskId, task.getTimeExpression());
-                returnMap.put("status", 1);
-                returnMap.put("desc", "成功修改单次任务");
+        if (!Objects.equals(updatedTask.getCronExpression(), oldTask.getCronExpression())) {
+            oldTask.setCronExpression(updatedTask.getCronExpression());
+        }
+        if (!Objects.equals(updatedTask.getTimeExpression(), oldTask.getTimeExpression())) {
+            oldTask.setTimeExpression(updatedTask.getTimeExpression());
+        }
+        if (!Objects.equals(updatedTask.getCodeScript(), oldTask.getCodeScript())) {
+            oldTask.setCodeScript(updatedTask.getCodeScript());
+        }
+        if (!Objects.equals(updatedTask.getRemark(), oldTask.getRemark())) {
+            oldTask.setRemark(updatedTask.getRemark());
+        }
+
+
+        // 如果至少有一个属性发生了变化
+        if (!oldTask.equals(updatedTask)) {
+            boolean success = false;
+
+            if (oldTask.getCronExpression() != null && !oldTask.getCronExpression().isEmpty()) {
+                success = taskService.rescheduleCronTask(oldTask.getTaskId(), oldTask.getCronExpression(), oldTask.getCodeScript(), oldTask.getRemark());
+                if (success) {
+                    returnMap.put("status", 1);
+                    returnMap.put("desc", "成功修改多次循环任务");
+                }
             }
+
+            if (oldTask.getTimeExpression() != null && !oldTask.getTimeExpression().equals(new Date(0))) {
+                success = taskService.rescheduleOnceTask(oldTask.getTaskId(), oldTask.getTimeExpression(), oldTask.getCodeScript(), oldTask.getRemark());
+                if (success) {
+                    returnMap.put("status", 1);
+                    returnMap.put("desc", "成功修改单次时间任务");
+                }
+            }
+
+            // 更新数据库
+            if (success) {
+                taskDataService.updateTask(oldTask);
+                //改版本号 db聚合函数count标识符号再加1
+
+                //让任务状态暂停  脚本状态暂停
+            }
+
+        } else {
+            returnMap.put("desc", "任务属性没有变化，无需修改");
         }
 
         return returnMap;
     }
-
 
 }

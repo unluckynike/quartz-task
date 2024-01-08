@@ -64,25 +64,42 @@ public class Task {
     public Task() {
     }
 
-    //cronExpression constructor
-
-    public Task(Integer taskId, String taskName, String cronExpression, TaskType taskType, String remark) {
+    public Task(Integer taskId, String taskName, TaskType taskType, String cronExpression, Date timeExpression, String remark, long identifyGroup, String codeScript, float version, CodeState state, Byte isActivate, Byte isDelete) {
         this.taskId = taskId;
         this.taskName = taskName;
+        this.taskType = taskType;
         this.cronExpression = cronExpression;
-        this.taskType = taskType;
-        this.remark = remark;
-    }
-
-    //timeExpression constructor
-
-    public Task(Integer taskId, String taskName, Date timeExpression, TaskType taskType, String remark) {
-        this.taskId = taskId;
-        this.taskName = taskName;
         this.timeExpression = timeExpression;
-        this.taskType = taskType;
         this.remark = remark;
+        this.identifyGroup = identifyGroup;
+        this.codeScript = codeScript;
+        this.version = version;
+        this.state = state;
+        this.isActivate = isActivate;
+        this.isDelete = isDelete;
     }
+
+    //    //cronExpression constructor
+//
+//    public Task(Integer taskId, String taskName, String cronExpression,String codeScript, TaskType taskType, String remark) {
+//        this.taskId = taskId;
+//        this.taskName = taskName;
+//        this.cronExpression = cronExpression;
+//        this.codeScript=codeScript;
+//        this.taskType = taskType;
+//        this.remark = remark;
+//    }
+//
+//    //timeExpression constructor
+//
+//    public Task(Integer taskId, String taskName, Date timeExpression, String codeScript,TaskType taskType, String remark) {
+//        this.taskId = taskId;
+//        this.taskName = taskName;
+//        this.timeExpression = timeExpression;
+//        this.codeScript=codeScript;
+//        this.taskType = taskType;
+//        this.remark = remark;
+//    }
 
     // getters and setters
     public Integer getTaskId() {
