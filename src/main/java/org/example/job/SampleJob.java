@@ -44,11 +44,11 @@ public class SampleJob implements Job {
 
         //执行.py
         String pyOutContex = executor.executePythonScriptByCode(codeScript);
-        logger.info("\n .py 执行输出内容： " + pyOutContex);
+        logger.info("\npy执行输出内容：\n" + pyOutContex);
 
         //读.sql
-        String sqlContex = ReadSQLContext.readSQLFile(SQL_FILE_PAHT);
-        logger.info("\n sql内容 : " + sqlContex);
+//        String sqlContex = ReadSQLContext.readSQLFile(SQL_FILE_PAHT);
+//        logger.info("\n sql内容 : " + sqlContex);
     }
 
 }

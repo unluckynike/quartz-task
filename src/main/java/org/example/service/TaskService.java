@@ -46,9 +46,8 @@ public class TaskService {
         //创建触发器
         CronTrigger trigger = TriggerBuilder
                 .newTrigger()
-                .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复   ?? 试试 + task.getTaskName()
-                //得到cron表达式
-                .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression())).build();
+                .withIdentity(task.getTaskId() + "Trigger") //给的是id 因为考虑到任务名字可能重复
+                .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression())).build();//得到cron表达式
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
@@ -100,7 +99,7 @@ public class TaskService {
     }
 
     /**
-     * 修改多次循环任务
+     * 修改多次循环任务 保证同id
      *
      * @param taskId
      * @param newCronExpression
@@ -131,7 +130,7 @@ public class TaskService {
     }
 
     /**
-     * 修改单词时间任务
+     * 修改单次时间任务 保证同id
      *
      * @param taskId
      * @param newTimeExpression

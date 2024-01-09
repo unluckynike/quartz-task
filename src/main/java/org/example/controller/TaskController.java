@@ -223,7 +223,7 @@ public class TaskController {
     @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Integer")
     @PostMapping("/{taskId}/resume")
     public Map<String, Object> resumeTask(@PathVariable Integer taskId) throws SchedulerException {
-        logger.info("重启任务 id：" + taskId);
+        logger.info("启动重启任务 id：" + taskId);
         Map<String, Object> returnMap = new HashMap<>();  //返回参数
 
         boolean isResume = taskService.resumeTask(taskId);
@@ -302,30 +302,35 @@ public class TaskController {
 
         // 如果至少有一个属性发生了变化
         if (!oldTask.equals(updatedTask)) {
-
             taskDataService.updateTask(oldTask);
             Task newTask = taskDataService.getLastTask();
             //改版本号 db聚合函数count标识符号从旧di中得到版本号
             float oldTaskVersion = taskDataService.getOldTaskVersion(oldTask.getTaskId());
             //更新版本号码 这条新的版本号值
             taskDataService.updateVersion(newTask.getTaskId(),oldTaskVersion);
+            //原来的任务删掉
+            taskService.deleteTask(oldTask.getTaskId());
+            taskDataService.deleteTask(oldTask.getTaskId());
+            taskDataService.codeScriptStatePause(oldTask.getTaskId());
 
+            //新的任务创建
             if (newTask.getCronExpression() != null && !newTask.getCronExpression().isEmpty()) {
-                taskService.rescheduleCronTask(newTask.getTaskId(), newTask.getCronExpression(), newTask.getCodeScript(), newTask.getRemark());
+//                taskService.rescheduleCronTask(newTask.getTaskId(), newTask.getCronExpression(), newTask.getCodeScript(), newTask.getRemark());
+                taskService.createLoopTask(newTask);
                 returnMap.put("status", 1);
                 returnMap.put("desc", "成功修改多次循环任务");
             }
 
             if (newTask.getTimeExpression() != null && !newTask.getTimeExpression().equals(new Date(0))) {
-                taskService.rescheduleOnceTask(newTask.getTaskId(), newTask.getTimeExpression(), newTask.getCodeScript(), newTask.getRemark());
+//                taskService.rescheduleOnceTask(newTask.getTaskId(), newTask.getTimeExpression(), newTask.getCodeScript(), newTask.getRemark());
+               taskService.createLoopTask(newTask);
                 returnMap.put("status", 1);
                 returnMap.put("desc", "成功修改单次时间任务");
             }
 
-            //让任务状态暂停  脚本状态暂停
+            //任务状态暂停  脚本状态暂停
             taskService.pauseTask(newTask.getTaskId());
             taskDataService.codeScriptStatePause(newTask.getTaskId());
-
 
         } else {
             returnMap.put("desc", "任务属性没有变化，无需修改");
