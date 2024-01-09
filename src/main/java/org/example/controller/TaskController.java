@@ -48,7 +48,6 @@ public class TaskController {
     @GetMapping()
     public Map<String, Object> queryTask() {
         Map<String, Object> returnMap = new HashMap<>();  //返回参数
-
         List<Task> allTasks = taskDataService.getAllTasks();
         //吐出数据
         for (Task t : allTasks)
@@ -65,6 +64,32 @@ public class TaskController {
             returnMap.put("msg", "获取成功");
             returnMap.put("data", allTasks);
         }
+        return returnMap;
+    }
+
+    @ApiOperation(value = "查看一组任务", notes = "查到的是这一组的任务的历史版本 结果按照历史版本和创建时间 倒叙排序")
+    @GetMapping("/queryTaskIdentifyGroup")
+    public Map<String, Object> queryTaskIdentifyGroup(
+            @RequestParam Integer taskid
+    ) {
+        Map<String, Object> returnMap = new HashMap<>();  //返回参数
+        List<Task> allTasks = taskDataService.getTasksIdentityGroupById(taskid);
+        //吐出数据
+        for (Task t : allTasks)
+            System.out.println(t);
+
+        //处理返回参数
+        returnMap.put("code", 1);
+        returnMap.put("msg", "数据库任务获取失败");
+        returnMap.put("count", 0);
+        returnMap.put("data", "");
+        if (allTasks.size() > 0) {
+            returnMap.put("code", 0);
+            returnMap.put("count", allTasks.size());
+            returnMap.put("msg", "获取成功");
+            returnMap.put("data", allTasks);
+        }
+
         return returnMap;
     }
 
@@ -344,6 +369,5 @@ public class TaskController {
         return returnMap;
     }
 
-    //查一组任务代码版本
 
 }

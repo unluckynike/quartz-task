@@ -502,7 +502,6 @@ public class TaskDataService {
         } finally {
             new DatabaseConnector().closeConnection(connection);
         }
-
         return tasks;
     }
 
@@ -515,12 +514,10 @@ public class TaskDataService {
      */
     public String getCodeScriptById(Integer taskId) {
         String codeScript = null;
-
         try (Connection connection = new DatabaseConnector().connect()) {
             String sqlQuery = "SELECT code_script FROM tasks WHERE task_id=?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
                 preparedStatement.setInt(1, taskId);
-
                 // 执行查询
                 try (ResultSet resultSet = preparedStatement.executeQuery()) { //使用 try-with-resources 语句来自动关闭资源，确保在发生异常时也会正确关闭连接
                     if (resultSet.next()) {
@@ -528,13 +525,55 @@ public class TaskDataService {
                         codeScript = resultSet.getString("code_script");
                     }
                 }
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return codeScript;
+    }
+
+
+    /**
+     * 得到同标识的一组任务
+     *
+     * @param taskid
+     * @return
+     */
+    public List<Task> getTasksIdentityGroupById(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        List<Task> tasks = new ArrayList<>();
+        try {
+            String sqlQuery = "SELECT * FROM tasks WHERE identify_group=(SELECT identify_group FROM tasks WHERE task_id=?) ORDER BY createtime DESC";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            //封装出task对象
+            while (resultSet.next()) {
+                Task task = new Task();
+                task.setTaskId(resultSet.getInt("task_id"));
+                task.setTaskName(resultSet.getString("task_name"));
+                task.setType(TaskType.valueOf(resultSet.getString("type")));
+                task.setCronExpression(resultSet.getString("cron_expression"));
+                task.setTimeExpression(resultSet.getDate("time_expression"));
+                task.setRemark(resultSet.getString("remark"));
+                task.setCodeScript(resultSet.getString("code_script"));
+                task.setIdentifyGroup(resultSet.getLong("identify_group"));
+                task.setVersion(resultSet.getFloat("version"));
+                task.setState(CodeState.valueOf(resultSet.getString("state")));
+                task.setIsActivate(resultSet.getByte("is_activate"));
+                task.setIsDelete(resultSet.getByte("is_delete"));
+                task.setCreatetime(resultSet.getDate("createtime"));
+                task.setUpdatetime(resultSet.getDate("updatetime"));
+                tasks.add(task);
+            }
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return tasks;
     }
 
     /**
