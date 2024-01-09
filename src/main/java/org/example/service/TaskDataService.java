@@ -71,7 +71,48 @@ public class TaskDataService {
     }
 
     /**
+     * 新增单次定时任务 包含TIME判空
+     *
+     * @param task
+     * @return
+     */
+    public boolean addOnceTimeTask(Task task) {
+        //检查时间格式是否合法
+        if (task.getTimeExpression() != null) {//前端已经做了控制时间格式
+            //得到连接对象
+            connection = new DatabaseConnector().connect();
+            long identifyGroup = System.currentTimeMillis();
+
+            try {
+                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+                preparedStatement.setString(1, task.getTaskName());
+                //Timestamp 继承自 java.util.Date getTime 返回自1970-1-1自现在的秒
+                preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));
+                preparedStatement.setString(3, task.getType().name());
+                preparedStatement.setString(4, task.getRemark());
+                preparedStatement.setString(5, task.getCodeScript());
+                preparedStatement.setLong(6, identifyGroup);
+                preparedStatement.executeUpdate();
+                //关闭预编译语句，释放相关资源。
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                // 关闭数据库连接
+                new DatabaseConnector().closeConnection(connection);
+            }
+            return true;
+        } else {
+            //不执行添加 错误信息cron日志
+            logger.error("无效的时间表达式，任务未添加到数据库: ");
+            return false;
+        }
+    }
+
+    /**
      * 修改任务
+     *
      * @param task
      */
     public void updateTask(Task task) {
@@ -80,7 +121,7 @@ public class TaskDataService {
             //cron
             if (CronUtil.isValid(task.getCronExpression())) {
                 try {
-                    String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group,version) VALUES (?, ?, ?, ?,?,?,?)";
+                    String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
                     PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                     preparedStatement.setString(1, task.getTaskName());
                     preparedStatement.setString(2, task.getCronExpression());
@@ -88,7 +129,6 @@ public class TaskDataService {
                     preparedStatement.setString(4, task.getRemark());
                     preparedStatement.setString(5, task.getCodeScript());
                     preparedStatement.setLong(6, task.getIdentifyGroup());
-                    preparedStatement.setFloat(7, task.getVersion() + 1);
                     preparedStatement.executeUpdate();
                     preparedStatement.close();
                 } catch (SQLException e) {
@@ -106,7 +146,7 @@ public class TaskDataService {
         } else {
             //time
             try {
-                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group,version) VALUES (?, ?, ?, ?,?,?,?)";
+                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
                 preparedStatement.setString(1, task.getTaskName());
                 preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));//getTime 返回自1970-1-1自现在的秒
@@ -114,7 +154,6 @@ public class TaskDataService {
                 preparedStatement.setString(4, task.getRemark());
                 preparedStatement.setString(5, task.getCodeScript());
                 preparedStatement.setLong(6, task.getIdentifyGroup());
-                preparedStatement.setFloat(7, task.getVersion() + 1);
                 preparedStatement.executeUpdate();
                 preparedStatement.close();
             } catch (SQLException e) {
@@ -123,6 +162,30 @@ public class TaskDataService {
                 new DatabaseConnector().closeConnection(connection);
             }
         }
+    }
+
+    /**
+     * 修改版本号 版本号迭代
+     *
+     * @param taskid
+     * @return
+     */
+    public boolean updateVersion(Integer taskid, float version) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET version = ? WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setFloat(1, version);
+            preparedStatement.setFloat(2, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return false;
     }
 
     /**
@@ -234,8 +297,40 @@ public class TaskDataService {
         return i;
     }
 
+
     /**
-     * 查到最后一条（最新添加）任务 这个用于创建任务之后调用 查到数据库最后一条（新插入的）数据 放进内存里触发任务
+     * 获取版本号
+     *
+     * @param taskId
+     * @return
+     */
+    public float getOldTaskVersion(Integer taskId) {
+        connection = new DatabaseConnector().connect();
+        float version = 1;
+        try {
+            String sqlQuery = "SELECT COUNT(*) AS maxVersion FROM tasks WHERE identify_group = (SELECT identify_group FROM tasks WHERE task_id=?)";
+            //SELECT MAX(version) AS maxVersion FROM tasks WHERE identify_group = (SELECT identify_group FROM tasks WHERE task_id = 91)
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                version = resultSet.getFloat("maxVersion");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+
+        return version;
+    }
+
+    /**
+     * 查到最后一条（最新添加）任务  查到数据库最后一条（新插入的）数据
      *
      * @return Task 返回在数据库中查到的task
      */
@@ -350,47 +445,6 @@ public class TaskDataService {
         }
 
         return tasks;
-    }
-
-
-    /**
-     * 新增单次定时任务 包含TIME判空
-     *
-     * @param task
-     * @return
-     */
-    public boolean addOnceTimeTask(Task task) {
-        //检查时间格式是否合法
-        if (task.getTimeExpression() != null) {//前端已经做了控制时间格式
-            //得到连接对象
-            connection = new DatabaseConnector().connect();
-            long identifyGroup = System.currentTimeMillis();
-
-            try {
-                String sqlQuery = "INSERT INTO tasks (task_name, time_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
-                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-                preparedStatement.setString(1, task.getTaskName());
-                //Timestamp 继承自 java.util.Date getTime 返回自1970-1-1自现在的秒
-                preparedStatement.setTimestamp(2, new Timestamp(task.getTimeExpression().getTime()));
-                preparedStatement.setString(3, task.getType().name());
-                preparedStatement.setString(4, task.getRemark());
-                preparedStatement.setString(5, task.getCodeScript());
-                preparedStatement.setLong(6, identifyGroup);
-                preparedStatement.executeUpdate();
-                //关闭预编译语句，释放相关资源。
-                preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                // 关闭数据库连接
-                new DatabaseConnector().closeConnection(connection);
-            }
-            return true;
-        } else {
-            //不执行添加 错误信息cron日志
-            logger.error("无效的时间表达式，任务未添加到数据库: ");
-            return false;
-        }
     }
 
 
