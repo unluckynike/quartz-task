@@ -152,6 +152,7 @@ public class TaskController {
             taskService.createLoopTask(lastTask);
             taskService.pauseTask(lastTask.getTaskId());
             taskDataService.codeScriptStatePause(lastTask.getTaskId());
+            taskDataService.setUnActivate(lastTask.getTaskId());
             returnMap.put("status", 1);
             returnMap.put("desc", "成功创建并开启多次循环任务");
         }
@@ -181,6 +182,7 @@ public class TaskController {
             taskService.createOnceTimeTask(lastTask);
             taskService.pauseTask(lastTask.getTaskId());
             taskDataService.codeScriptStatePause(lastTask.getTaskId());
+            taskDataService.setUnActivate(lastTask.getTaskId());
             returnMap.put("status", 1);
             returnMap.put("desc", "成功创建单次定时任务并开启执行");
         }
@@ -204,6 +206,7 @@ public class TaskController {
         boolean isPause = taskService.pauseTask(taskId);
         if (isPause) {
             taskDataService.codeScriptStatePause(taskId);
+            taskDataService.setUnActivate(taskId);
             returnMap.put("status", 1);
             returnMap.put("desc", "成功暂停任务");
         } else {
@@ -229,11 +232,12 @@ public class TaskController {
         boolean isResume = taskService.resumeTask(taskId);
         if (isResume) {
             taskDataService.codeScriptStateEnable(taskId);
+            taskDataService.setActivate(taskId);
             returnMap.put("status", 1);
-            returnMap.put("desc", "成功重启任务");
+            returnMap.put("desc", "成功启动重启任务");
         } else {
             returnMap.put("status", 0);
-            returnMap.put("desc", "重启任务失败");
+            returnMap.put("desc", "启动重启任务失败");
         }
         return returnMap;
     }
@@ -257,6 +261,7 @@ public class TaskController {
         if (isDelete) {
             taskDataService.deleteTask(taskId);
             taskDataService.codeScriptStateStopped(taskId);
+            taskDataService.setUnActivate(taskId);
             returnMap.put("status", 1);
             returnMap.put("desc", "删除任务成功");
         }
@@ -306,12 +311,13 @@ public class TaskController {
             Task newTask = taskDataService.getLastTask();
             //改版本号 db聚合函数count标识符号从旧di中得到版本号
             float oldTaskVersion = taskDataService.getOldTaskVersion(oldTask.getTaskId());
-            //更新版本号码 这条新的版本号值
-            taskDataService.updateVersion(newTask.getTaskId(),oldTaskVersion);
+            //更新版本号 这条新的版本号值
+            taskDataService.updateVersion(newTask.getTaskId(), oldTaskVersion);
             //原来的任务删掉
             taskService.deleteTask(oldTask.getTaskId());
             taskDataService.deleteTask(oldTask.getTaskId());
             taskDataService.codeScriptStatePause(oldTask.getTaskId());
+            taskDataService.setUnActivate(oldTask.getTaskId());
 
             //新的任务创建
             if (newTask.getCronExpression() != null && !newTask.getCronExpression().isEmpty()) {
@@ -320,23 +326,24 @@ public class TaskController {
                 returnMap.put("status", 1);
                 returnMap.put("desc", "成功修改多次循环任务");
             }
-
             if (newTask.getTimeExpression() != null && !newTask.getTimeExpression().equals(new Date(0))) {
 //                taskService.rescheduleOnceTask(newTask.getTaskId(), newTask.getTimeExpression(), newTask.getCodeScript(), newTask.getRemark());
-               taskService.createLoopTask(newTask);
+                taskService.createLoopTask(newTask);
                 returnMap.put("status", 1);
                 returnMap.put("desc", "成功修改单次时间任务");
             }
 
-            //任务状态暂停  脚本状态暂停
+            //任务状态暂停  脚本状态暂停 不激活
             taskService.pauseTask(newTask.getTaskId());
             taskDataService.codeScriptStatePause(newTask.getTaskId());
-
+            taskDataService.setUnActivate(newTask.getTaskId());
         } else {
             returnMap.put("desc", "任务属性没有变化，无需修改");
         }
 
         return returnMap;
     }
+
+    //查一组任务代码版本
 
 }

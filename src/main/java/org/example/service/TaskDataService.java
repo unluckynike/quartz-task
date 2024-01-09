@@ -1,5 +1,6 @@
 package org.example.service;
 
+import io.swagger.models.auth.In;
 import org.example.controller.TaskController;
 import org.example.pojo.CodeState;
 import org.example.pojo.Task;
@@ -165,6 +166,69 @@ public class TaskDataService {
     }
 
     /**
+     * 更新激活状态
+     *
+     * @param taskid
+     * @return
+     */
+    public boolean updateActivate(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET is_activate = CASE WHEN is_activate = 0 THEN 1 ELSE 0 END WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return false;
+    }
+
+    /**
+     * 激活
+     *
+     * @param taskid
+     */
+    public void setActivate(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET is_activate=1 WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+    }
+
+    /**
+     * 不激活
+     *
+     * @param taskid
+     */
+    public void setUnActivate(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET is_activate=0 WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+    }
+
+    /**
      * 修改版本号 版本号迭代
      *
      * @param taskid
@@ -176,7 +240,7 @@ public class TaskDataService {
             String sqlQuery = "UPDATE tasks SET version = ? WHERE task_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setFloat(1, version);
-            preparedStatement.setFloat(2, taskid);
+            preparedStatement.setInt(2, taskid);
             preparedStatement.executeUpdate();
             preparedStatement.close();
             return true;
@@ -195,9 +259,8 @@ public class TaskDataService {
      * @return boolean
      */
     public boolean updateCronTask(Task task) {
-        //检查cron表达式是否合法
+        //检查cron表达式是否合法 cron表达式合法再打开数据库连接
         if (CronUtil.isValid(task.getCronExpression())) {
-            //cron表达式合法再打开数据库连接
             connection = new DatabaseConnector().connect();
             try {
                 String sqlQuery = "INSERT INTO tasks (task_name, cron_expression,type,remark,code_script,identify_group) VALUES (?, ?, ?, ?,?,?)";
@@ -212,7 +275,6 @@ public class TaskDataService {
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
-                //关闭数据库连接
                 new DatabaseConnector().closeConnection(connection);
             }
             return true;
@@ -281,7 +343,6 @@ public class TaskDataService {
      */
     public int recallDeleteTask(Integer taskId) {
         connection = new DatabaseConnector().connect();
-
         int i = 0;
         try {
             String sqlQuery = "UPDATE tasks SET is_delete = 0 WHERE task_id =?";
@@ -378,7 +439,6 @@ public class TaskDataService {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, taskId);
             ResultSet resultSet = preparedStatement.executeQuery();
-
             //封装出task对象
             while (resultSet.next()) {
                 task.setTaskName(resultSet.getString("task_name"));
@@ -416,7 +476,6 @@ public class TaskDataService {
             String sqlQuery = "SELECT task_id,task_name,type,cron_expression,time_expression,remark,code_script,identify_group,version,state,is_activate,is_delete,createtime,updatetime FROM tasks WHERE is_delete=0";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet resultSet = preparedStatement.executeQuery();
-
             //封装出task对象
             while (resultSet.next()) {
                 Task task = new Task();
@@ -486,7 +545,6 @@ public class TaskDataService {
      */
     public int codeScriptStatePause(Integer taskId) {
         connection = new DatabaseConnector().connect();
-
         int i = 0;
         try {
             String sqlQuery = "UPDATE tasks SET state='PAUSED' WHERE task_id =?";
@@ -499,7 +557,6 @@ public class TaskDataService {
         } finally {
             new DatabaseConnector().closeConnection(connection);
         }
-
         return i;
     }
 
@@ -512,7 +569,6 @@ public class TaskDataService {
      */
     public int codeScriptStateEnable(Integer taskId) {
         connection = new DatabaseConnector().connect();
-
         int i = 0;
         try {
             String sqlQuery = "UPDATE tasks SET state='ENABLED' WHERE task_id =?";
@@ -525,7 +581,6 @@ public class TaskDataService {
         } finally {
             new DatabaseConnector().closeConnection(connection);
         }
-
         return i;
     }
 
@@ -537,7 +592,6 @@ public class TaskDataService {
      */
     public int codeScriptStateStopped(Integer taskId) {
         connection = new DatabaseConnector().connect();
-
         int i = 0;
         try {
             String sqlQuery = "UPDATE tasks SET state='STOPPED' WHERE task_id =?";
@@ -550,7 +604,6 @@ public class TaskDataService {
         } finally {
             new DatabaseConnector().closeConnection(connection);
         }
-
         return i;
     }
 
