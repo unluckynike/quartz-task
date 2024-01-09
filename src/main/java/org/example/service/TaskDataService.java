@@ -165,68 +165,6 @@ public class TaskDataService {
         }
     }
 
-    /**
-     * 更新激活状态
-     *
-     * @param taskid
-     * @return
-     */
-    public boolean updateActivate(Integer taskid) {
-        connection = new DatabaseConnector().connect();
-        try {
-            String sqlQuery = "UPDATE tasks SET is_activate = CASE WHEN is_activate = 0 THEN 1 ELSE 0 END WHERE task_id=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, taskid);
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            new DatabaseConnector().closeConnection(connection);
-        }
-        return false;
-    }
-
-    /**
-     * 激活
-     *
-     * @param taskid
-     */
-    public void setActivate(Integer taskid) {
-        connection = new DatabaseConnector().connect();
-        try {
-            String sqlQuery = "UPDATE tasks SET is_activate=1 WHERE task_id=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, taskid);
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            new DatabaseConnector().closeConnection(connection);
-        }
-    }
-
-    /**
-     * 不激活
-     *
-     * @param taskid
-     */
-    public void setUnActivate(Integer taskid) {
-        connection = new DatabaseConnector().connect();
-        try {
-            String sqlQuery = "UPDATE tasks SET is_activate=0 WHERE task_id=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, taskid);
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            new DatabaseConnector().closeConnection(connection);
-        }
-    }
 
     /**
      * 修改版本号 版本号迭代
@@ -645,6 +583,67 @@ public class TaskDataService {
         }
         return i;
     }
+    /**
+     * 更新激活状态
+     *
+     * @param taskid
+     * @return
+     */
+    public boolean updateActivate(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET is_activate = CASE WHEN is_activate = 0 THEN 1 ELSE 0 END WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+        return false;
+    }
 
+    /**
+     * 激活
+     *
+     * @param taskid
+     */
+    public void setActivate(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET is_activate=1 WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+    }
+
+    /**
+     * 不激活
+     *
+     * @param taskid
+     */
+    public void setUnActivate(Integer taskid) {
+        connection = new DatabaseConnector().connect();
+        try {
+            String sqlQuery = "UPDATE tasks SET is_activate=0 WHERE task_id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, taskid);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            new DatabaseConnector().closeConnection(connection);
+        }
+    }
 
 }
