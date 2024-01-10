@@ -37,7 +37,7 @@ public class Swagger2Config {
         return new ApiInfoBuilder()
                 .title("采集系统-定时任务调度模块接口文档")
                 .description("采集系统-定时任务调度模块接口测试")
-                .version("1.1 统一接口返回")
+                .version("2.0 多任务执行 任务组历史版本管理")
                 .contact(new Contact("hailin", "https://github.com/unluckynike/quartz-task", "2230432084@qq.com"))
                 .termsOfServiceUrl("")
                 .license("")
